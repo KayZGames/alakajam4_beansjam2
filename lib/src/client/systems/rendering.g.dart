@@ -25,3 +25,21 @@ abstract class _$CarRenderingSystem extends WebGlRenderingSystem {
         world.getManager<WebGlViewProjectionMatrixManager>();
   }
 }
+
+abstract class _$TrackRenderingSystem extends WebGlRenderingSystem {
+  Mapper<Track> trackMapper;
+  Mapper<Position> positionMapper;
+  CameraManager cameraManager;
+  WebGlViewProjectionMatrixManager webGlViewProjectionMatrixManager;
+  _$TrackRenderingSystem(RenderingContext gl)
+      : super(gl, Aspect.empty()..allOf([Track, Position]));
+  @override
+  void initialize() {
+    super.initialize();
+    trackMapper = Mapper<Track>(world);
+    positionMapper = Mapper<Position>(world);
+    cameraManager = world.getManager<CameraManager>();
+    webGlViewProjectionMatrixManager =
+        world.getManager<WebGlViewProjectionMatrixManager>();
+  }
+}

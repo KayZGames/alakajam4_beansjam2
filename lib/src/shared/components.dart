@@ -27,3 +27,4 @@ class Controller extends Component {
 }
 
 class Car extends Component {}
+class Track extends Component {}

@@ -18,3 +18,13 @@ abstract class _$ControllerToActionSystem extends EntityProcessingSystem {
     accelerationMapper = Mapper<Acceleration>(world);
   }
 }
+
+abstract class _$TrackSpawningSystem extends EntitySystem {
+  Mapper<Track> trackMapper;
+  _$TrackSpawningSystem() : super(Aspect.empty()..allOf([Track]));
+  @override
+  void initialize() {
+    super.initialize();
+    trackMapper = Mapper<Track>(world);
+  }
+}

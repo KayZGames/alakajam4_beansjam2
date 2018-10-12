@@ -1,3 +1,4 @@
+import 'package:alakajam4_beansjam2/shared.dart';
 import 'package:dartemis/dartemis.dart';
 import 'package:gamedev_helpers/gamedev_helpers_shared.dart';
 import 'package:alakajam4_beansjam2/src/shared/components.dart';
@@ -33,6 +34,28 @@ class ControllerToActionSystem extends _$ControllerToActionSystem {
     } else if (controller.downright) {
       acceleration.y -= _acc * world.delta / _sqrttwo;
       acceleration.x += _acc * world.delta / _sqrttwo;
+    }
+  }
+}
+
+@Generate(
+  EntitySystem,
+  allOf: [
+    Track,
+  ],
+)
+class TrackSpawningSystem extends _$TrackSpawningSystem {
+  double lastX = 0.0;
+  double lastY = -carHeightHalf - trackHeightHalf;
+  @override
+  bool checkProcessing() => true;
+
+  @override
+  void processEntities(Iterable<Entity> entities) {
+    for (var index = entities.length; index < 50; index++) {
+      world.createAndAddEntity(
+          [Position(lastX.toDouble(), lastY.toDouble()), Track()]);
+      lastX += trackWidthHalf * 2;
     }
   }
 }

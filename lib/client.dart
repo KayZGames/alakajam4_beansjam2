@@ -59,6 +59,7 @@ class Game extends GameBase {
   Map<int, List<EntitySystem>> getSystems() {
     return {
       GameBase.rendering: [
+        TrackSpawningSystem(),
         ControllerSystem(),
         ResetAccelerationSystem(),
         ControllerToActionSystem(),
@@ -67,6 +68,7 @@ class Game extends GameBase {
         SimpleMovementSystem(),
         WebGlCanvasCleaningSystem(gl),
         CarRenderingSystem(gl),
+        TrackRenderingSystem(gl),
         CanvasCleaningSystem(hudCanvas),
         FpsRenderingSystem(hudCtx, 'white'),
       ],
