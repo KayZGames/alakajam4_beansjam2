@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:web_gl';
 
+import 'package:alakajam4_beansjam2/shared.dart';
 import 'package:gamedev_helpers/gamedev_helpers.dart';
 
 part 'rendering.g.dart';
@@ -8,38 +9,42 @@ part 'rendering.g.dart';
 @Generate(
   WebGlRenderingSystem,
   allOf: [
+    Car,
     Position,
+    Orientation,
   ],
   manager: [
     CameraManager,
     WebGlViewProjectionMatrixManager,
   ],
 )
-class PositionRenderingSystem extends _$PositionRenderingSystem {
+class CarRenderingSystem extends _$CarRenderingSystem {
   List<Attrib> attributes;
 
   Float32List items;
   Uint16List indices;
 
-  PositionRenderingSystem(RenderingContext gl) : super(gl) {
+  CarRenderingSystem(RenderingContext gl) : super(gl) {
     attributes = [Attrib('pos', 2)];
   }
 
   @override
   void processEntity(int index, Entity entity) {
     final position = positionMapper[entity];
+    final angle = orientationMapper[entity].angle;
     final itemOffset = index * 2 * 4;
     final indexOffset = index * 3 * 2;
     final vertexOffset = index * 4;
+    final dist = sqrt(carWidthHalf * carWidthHalf + carHeightHalf * carHeightHalf);
 
-    items[itemOffset] = position.x * cameraManager.width;
-    items[itemOffset + 1] = position.y * cameraManager.height;
-    items[itemOffset + 2] = (position.x + 0.01) * cameraManager.width;
-    items[itemOffset + 3] = position.y * cameraManager.height;
-    items[itemOffset + 4] = position.x * cameraManager.width;
-    items[itemOffset + 5] = (position.y + 0.01) * cameraManager.height;
-    items[itemOffset + 6] = (position.x + 0.01) * cameraManager.width;
-    items[itemOffset + 7] = (position.y + 0.01) * cameraManager.height;
+    items[itemOffset] = position.x + dist * cos(angle + vertexAngle + pi);
+    items[itemOffset + 1] = position.y + dist * sin(angle + vertexAngle + pi);
+    items[itemOffset + 2] = position.x + dist * cos(angle - vertexAngle);
+    items[itemOffset + 3] = position.y + dist * sin(angle - vertexAngle);
+    items[itemOffset + 4] = position.x + dist * cos(angle - vertexAngle + pi);
+    items[itemOffset + 5] = position.y + dist * sin(angle - vertexAngle + pi);
+    items[itemOffset + 6] = position.x + dist * cos(angle + vertexAngle);
+    items[itemOffset + 7] = position.y + dist * sin(angle + vertexAngle);
 
     indices[indexOffset] = vertexOffset;
     indices[indexOffset + 1] = vertexOffset + 1;

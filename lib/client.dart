@@ -21,6 +21,7 @@ class Game extends GameBase {
 
   @override
   void createEntities() {
+    world.getManager<CameraManager>().gameZoom = 0.1;
     final tagManager = TagManager();
     world.addManager(tagManager);
     world.addManager(WebGlViewProjectionMatrixManager(1000));
@@ -30,6 +31,24 @@ class Game extends GameBase {
       Acceleration(0.0, 0.0),
       Velocity(0.0, 0.0),
       Mass(),
+      Orientation(0.0),
+      Car(),
+    ]);
+    addEntity([
+      Position(10.0, 0.0),
+      Acceleration(0.0, 0.0),
+      Velocity(0.0, 0.0),
+      Mass(),
+      Orientation(pi / 4),
+      Car(),
+    ]);
+    addEntity([
+      Position(-10.0, 0.0),
+      Acceleration(0.0, 0.0),
+      Velocity(0.0, 0.0),
+      Mass(),
+      Orientation(pi / 8),
+      Car(),
     ]);
 
     tagManager.register(player, playerTag);
@@ -47,7 +66,7 @@ class Game extends GameBase {
         SimpleAccelerationSystem(),
         SimpleMovementSystem(),
         WebGlCanvasCleaningSystem(gl),
-        PositionRenderingSystem(gl),
+        CarRenderingSystem(gl),
         CanvasCleaningSystem(hudCanvas),
         FpsRenderingSystem(hudCtx, 'white'),
       ],

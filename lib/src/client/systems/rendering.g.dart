@@ -6,16 +6,20 @@ part of 'rendering.dart';
 // SystemGenerator
 // **************************************************************************
 
-abstract class _$PositionRenderingSystem extends WebGlRenderingSystem {
+abstract class _$CarRenderingSystem extends WebGlRenderingSystem {
+  Mapper<Car> carMapper;
   Mapper<Position> positionMapper;
+  Mapper<Orientation> orientationMapper;
   CameraManager cameraManager;
   WebGlViewProjectionMatrixManager webGlViewProjectionMatrixManager;
-  _$PositionRenderingSystem(RenderingContext gl)
-      : super(gl, Aspect.empty()..allOf([Position]));
+  _$CarRenderingSystem(RenderingContext gl)
+      : super(gl, Aspect.empty()..allOf([Car, Position, Orientation]));
   @override
   void initialize() {
     super.initialize();
+    carMapper = Mapper<Car>(world);
     positionMapper = Mapper<Position>(world);
+    orientationMapper = Mapper<Orientation>(world);
     cameraManager = world.getManager<CameraManager>();
     webGlViewProjectionMatrixManager =
         world.getManager<WebGlViewProjectionMatrixManager>();

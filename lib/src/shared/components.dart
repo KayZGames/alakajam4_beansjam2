@@ -25,3 +25,5 @@ class Controller extends Component {
     downright = false;
   }
 }
+
+class Car extends Component {}
