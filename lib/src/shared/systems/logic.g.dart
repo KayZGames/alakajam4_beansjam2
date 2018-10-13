@@ -9,6 +9,7 @@ part of 'logic.dart';
 abstract class _$ControllerToActionSystem extends EntityProcessingSystem {
   Mapper<Controller> controllerMapper;
   Mapper<Acceleration> accelerationMapper;
+  CarOnTrackSystem carOnTrackSystem;
   _$ControllerToActionSystem()
       : super(Aspect.empty()..allOf([Controller, Acceleration]));
   @override
@@ -16,6 +17,7 @@ abstract class _$ControllerToActionSystem extends EntityProcessingSystem {
     super.initialize();
     controllerMapper = Mapper<Controller>(world);
     accelerationMapper = Mapper<Acceleration>(world);
+    carOnTrackSystem = world.getSystem<CarOnTrackSystem>();
   }
 }
 

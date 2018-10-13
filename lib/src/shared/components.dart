@@ -3,6 +3,7 @@ import 'package:dartemis/dartemis.dart';
 class Controller extends Component {
   bool up, down, left, right;
   bool upleft, upright, downleft, downright;
+  bool space;
 
   Controller(
       {this.up = false,
@@ -12,7 +13,8 @@ class Controller extends Component {
       this.upleft = false,
       this.upright = false,
       this.downleft = false,
-      this.downright = false});
+      this.downright = false,
+      this.space = false});
 
   void reset() {
     up = false;
@@ -23,6 +25,7 @@ class Controller extends Component {
     upright = false;
     downleft = false;
     downright = false;
+    space = false;
   }
 }
 

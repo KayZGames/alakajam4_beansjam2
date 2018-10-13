@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:gamedev_helpers/gamedev_helpers.dart';
 import 'package:alakajam4_beansjam2/src/shared/components.dart';
 
@@ -12,6 +14,10 @@ class ControllerSystem extends _$ControllerSystem {
       c.left = true;
     } else if (right) {
       c.right = true;
+    }
+    if (isPressed(KeyCode.SPACE)) {
+      c.space = true;
+      unpress[KeyCode.SPACE] = true;
     }
   }
 }

@@ -11,6 +11,9 @@ part 'logic.g.dart';
     Controller,
     Acceleration,
   ],
+  systems: [
+    CarOnTrackSystem,
+  ],
 )
 class ControllerToActionSystem extends _$ControllerToActionSystem {
   final _acc = 20.0;
@@ -23,6 +26,9 @@ class ControllerToActionSystem extends _$ControllerToActionSystem {
       acceleration.x -= _acc;
     } else if (controller.right) {
       acceleration.x += _acc;
+    }
+    if (controller.space) {
+      carOnTrackSystem.maglockActive = !carOnTrackSystem.maglockActive;
     }
   }
 }
@@ -171,6 +177,8 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
   ],
 )
 class CarOnTrackSystem extends _$CarOnTrackSystem {
+  bool maglockActive = true;
+
   @override
   void processEntity(Entity entity) {
     final position = positionMapper[entity];
@@ -181,7 +189,6 @@ class CarOnTrackSystem extends _$CarOnTrackSystem {
     final lastY = trackSpawningSystem.yPositions[lastX];
     final nextY = trackSpawningSystem.yPositions[nextX];
     final y = lastY * (1.0 - percentage) + nextY * percentage;
-    ;
 
     position.y = y + carHeightHalf + trackHeightHalf;
     velocityMapper[entity].y = 0.0;
@@ -192,6 +199,9 @@ class CarOnTrackSystem extends _$CarOnTrackSystem {
 
     position.y -= sin(orientation.angle) * (carHeightHalf + trackHeightHalf);
   }
+
+  @override
+  bool checkProcessing() => maglockActive;
 }
 
 @Generate(
