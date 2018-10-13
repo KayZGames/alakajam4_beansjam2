@@ -34,22 +34,6 @@ class Game extends GameBase {
       Orientation(0.0),
       Car(),
     ]);
-    addEntity([
-      Position(10.0, 0.0),
-      Acceleration(0.0, 0.0),
-      Velocity(0.0, 0.0),
-      Mass(),
-      Orientation(pi / 4),
-      Car(),
-    ]);
-    addEntity([
-      Position(-10.0, 0.0),
-      Acceleration(0.0, 0.0),
-      Velocity(0.0, 0.0),
-      Mass(),
-      Orientation(pi / 8),
-      Car(),
-    ]);
 
     tagManager.register(player, playerTag);
     tagManager.register(player, cameraTag);

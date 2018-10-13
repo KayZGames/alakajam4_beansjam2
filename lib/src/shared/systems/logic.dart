@@ -47,15 +47,61 @@ class ControllerToActionSystem extends _$ControllerToActionSystem {
 class TrackSpawningSystem extends _$TrackSpawningSystem {
   double lastX = 0.0;
   double lastY = -carHeightHalf - trackHeightHalf;
+  TrackDirection lastDirection = TrackDirection.straight;
+  double randomNumber = 0.0;
   @override
   bool checkProcessing() => true;
 
   @override
   void processEntities(Iterable<Entity> entities) {
     for (var index = entities.length; index < 50; index++) {
+      lastDirection = getNextDirection();
       world.createAndAddEntity(
-          [Position(lastX.toDouble(), lastY.toDouble()), Track()]);
+          [Position(lastX.toDouble(), lastY.toDouble()), Track(lastDirection)]);
       lastX += trackWidthHalf * 2;
+      lastY += getYOffset();
     }
+  }
+
+  TrackDirection getNextDirection() {
+    final configs = directionConfigs[lastDirection];
+    randomNumber = (randomNumber + random.nextDouble()) % 1.0;
+    double configProbability = 0.0;
+    int configIndex = 0;
+    while (configIndex < configs.length) {
+      configProbability += configs[configIndex].probablility;
+      if (randomNumber < configProbability) {
+        return configs[configIndex].direction;
+      }
+      configIndex++;
+    }
+    assert(false, '$lastDirection $configProbability != 1.0');
+    return null;
+  }
+
+  double getYOffset() {
+    switch (lastDirection) {
+      case TrackDirection.straight:
+        return 0.0;
+      case TrackDirection.straightToUpwards:
+        return carHeightHalf;
+      case TrackDirection.upwards:
+        return carHeightHalf * 2;
+      case TrackDirection.upwardsToStraight:
+        return carHeightHalf;
+      case TrackDirection.straightToDownwards:
+      case TrackDirection.straightToMissing:
+      case TrackDirection.missingToDownwards:
+      case TrackDirection.missingToStraight:
+        return -carHeightHalf;
+      case TrackDirection.downwards:
+      case TrackDirection.missing:
+      case TrackDirection.upwardsToMissing:
+        return -carHeightHalf * 2;
+      case TrackDirection.downwardsToStraight:
+        return -carHeightHalf;
+    }
+    assert(false, 'missing case for $lastDirection');
+    return 0.0;
   }
 }
