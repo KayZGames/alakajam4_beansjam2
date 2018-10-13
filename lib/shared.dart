@@ -11,5 +11,5 @@ const double carWidthHalf = 1.0;
 const double carHeightHalf = 0.5;
 final double vertexAngle = atan2(carHeightHalf, carWidthHalf);
 
-const double trackWidthHalf = 1.0;
+const double trackWidthHalf = 0.5;
 const double trackHeightHalf = 0.1;

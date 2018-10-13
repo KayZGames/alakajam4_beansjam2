@@ -43,3 +43,15 @@ abstract class _$TrackRenderingSystem extends WebGlRenderingSystem {
         world.getManager<WebGlViewProjectionMatrixManager>();
   }
 }
+
+abstract class _$VelocityRenderingSystem extends EntityProcessingSystem {
+  Mapper<Car> carMapper;
+  Mapper<Velocity> velocityMapper;
+  _$VelocityRenderingSystem() : super(Aspect.empty()..allOf([Car, Velocity]));
+  @override
+  void initialize() {
+    super.initialize();
+    carMapper = Mapper<Car>(world);
+    velocityMapper = Mapper<Velocity>(world);
+  }
+}

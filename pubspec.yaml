@@ -10,7 +10,7 @@ dependencies:
   gamedev_helpers:
     git:
       url: git://github.com/kayzgames/gamedev_helpers.git
-      ref: games/damacreat/0.5.0
+      ref: games/alakajam4_beansjam2
 dev_dependencies:
   build_runner: ^0.9.0
   build_web_compilers: any  

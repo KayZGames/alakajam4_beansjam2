@@ -207,8 +207,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "games/damacreat/0.5.0"
-      resolved-ref: eaf95e952d20c2578a48c3f67f7028e10bb42709
+      ref: "games/alakajam4_beansjam2"
+      resolved-ref: a49f4031cc566857280f7685ffe6ab7dcab8973d
       url: "git://github.com/kayzgames/gamedev_helpers.git"
     source: git
     version: "0.0.1-dev"

@@ -34,6 +34,42 @@ class Game extends GameBase {
       Orientation(0.0),
       Car(),
     ]);
+    addEntity([
+      Controller(),
+      Position(-carWidthHalf * 2 - 0.1, 0.0),
+      Acceleration(0.0, 0.0),
+      Velocity(0.0, 0.0),
+      Mass(),
+      Orientation(0.0),
+      Car(),
+    ]);
+    addEntity([
+      Controller(),
+      Position(-carWidthHalf * 4 - 0.2, 0.0),
+      Acceleration(0.0, 0.0),
+      Velocity(0.0, 0.0),
+      Mass(),
+      Orientation(0.0),
+      Car(),
+    ]);
+    addEntity([
+      Controller(),
+      Position(-carWidthHalf * 6 - 0.3, 0.0),
+      Acceleration(0.0, 0.0),
+      Velocity(0.0, 0.0),
+      Mass(),
+      Orientation(0.0),
+      Car(),
+    ]);
+    addEntity([
+      Controller(),
+      Position(-carWidthHalf * 8 - 0.4, 0.0),
+      Acceleration(0.0, 0.0),
+      Velocity(0.0, 0.0),
+      Mass(),
+      Orientation(0.0),
+      Car(),
+    ]);
 
     tagManager.register(player, playerTag);
     tagManager.register(player, cameraTag);
@@ -49,12 +85,15 @@ class Game extends GameBase {
         ControllerToActionSystem(),
         SimpleGravitySystem(),
         SimpleAccelerationSystem(),
-        SimpleMovementSystem(),
+        MovementSystem(),
+        CarOnTrackSystem(),
         WebGlCanvasCleaningSystem(gl),
         CarRenderingSystem(gl),
         TrackRenderingSystem(gl),
         CanvasCleaningSystem(hudCanvas),
+        VelocityRenderingSystem(hudCtx),
         FpsRenderingSystem(hudCtx, 'white'),
+        TrackDespawningSystem(),
       ],
       GameBase.physics: [
         // add at least one

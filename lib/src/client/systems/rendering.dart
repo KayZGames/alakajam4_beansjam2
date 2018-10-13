@@ -1,3 +1,4 @@
+import 'dart:html';
 import 'dart:typed_data';
 import 'dart:web_gl';
 
@@ -146,4 +147,24 @@ class TrackRenderingSystem extends _$TrackRenderingSystem {
   String get vShaderFile => 'PositionRenderingSystem';
   @override
   String get fShaderFile => 'PositionRenderingSystem';
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    Car,
+    Velocity,
+  ],
+)
+class VelocityRenderingSystem extends _$VelocityRenderingSystem {
+  CanvasRenderingContext2D ctx;
+  VelocityRenderingSystem(this.ctx);
+  @override
+  void processEntity(Entity entity) {
+    final velocity = velocityMapper[entity];
+    ctx
+      ..save()
+      ..fillText('Velocity: ${velocity.x}:${velocity.y}', 5, 20)
+      ..restore();
+  }
 }

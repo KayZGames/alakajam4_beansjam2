@@ -5,36 +5,44 @@ import 'package:alakajam4_beansjam2/src/shared/components.dart';
 
 part 'logic.g.dart';
 
-@Generate(EntityProcessingSystem, allOf: const [Controller, Acceleration])
+@Generate(
+  EntityProcessingSystem,
+  allOf: const [
+    Controller,
+    Acceleration,
+  ],
+)
 class ControllerToActionSystem extends _$ControllerToActionSystem {
-  final _acc = 50.0;
-  final _sqrttwo = 1.4142;
+  final _acc = 20.0;
 
   @override
   void processEntity(Entity entity) {
     final controller = controllerMapper[entity];
     final acceleration = accelerationMapper[entity];
-    if (controller.up) {
-      acceleration.y += _acc * world.delta;
-    } else if (controller.down) {
-      acceleration.y -= _acc * world.delta;
-    } else if (controller.left) {
-      acceleration.x -= _acc * world.delta;
+    if (controller.left) {
+      acceleration.x -= _acc;
     } else if (controller.right) {
-      acceleration.x += _acc * world.delta;
-    } else if (controller.upleft) {
-      acceleration.y += _acc * world.delta / _sqrttwo;
-      acceleration.x -= _acc * world.delta / _sqrttwo;
-    } else if (controller.upright) {
-      acceleration.y += _acc * world.delta / _sqrttwo;
-      acceleration.x += _acc * world.delta / _sqrttwo;
-    } else if (controller.downleft) {
-      acceleration.y -= _acc * world.delta / _sqrttwo;
-      acceleration.x -= _acc * world.delta / _sqrttwo;
-    } else if (controller.downright) {
-      acceleration.y -= _acc * world.delta / _sqrttwo;
-      acceleration.x += _acc * world.delta / _sqrttwo;
+      acceleration.x += _acc;
     }
+  }
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    Velocity,
+    Position,
+    Orientation,
+  ],
+)
+class MovementSystem extends _$MovementSystem {
+  @override
+  void processEntity(Entity entity) {
+    final velocity = velocityMapper[entity];
+    final angle = orientationMapper[entity].angle;
+    positionMapper[entity]
+      ..x += velocity.x * world.delta * cos(angle)
+      ..y += velocity.y * world.delta;
   }
 }
 
@@ -45,25 +53,29 @@ class ControllerToActionSystem extends _$ControllerToActionSystem {
   ],
 )
 class TrackSpawningSystem extends _$TrackSpawningSystem {
-  double lastX = 0.0;
+  double lastX = -50.0;
   double lastY = -carHeightHalf - trackHeightHalf;
   TrackDirection lastDirection = TrackDirection.straight;
   double randomNumber = 0.0;
-  @override
-  bool checkProcessing() => true;
+  Map<int, double> yPositions = <int, double>{};
 
   @override
   void processEntities(Iterable<Entity> entities) {
-    for (var index = entities.length; index < 50; index++) {
+    for (var index = entities.length; index < 200; index++) {
       lastDirection = getNextDirection();
       world.createAndAddEntity(
           [Position(lastX.toDouble(), lastY.toDouble()), Track(lastDirection)]);
       lastX += trackWidthHalf * 2;
       lastY += getYOffset();
+      yPositions[lastX.floor()] = lastY;
+      print(yPositions);
     }
   }
 
   TrackDirection getNextDirection() {
+    if (lastX < 10) {
+      return TrackDirection.straight;
+    }
     final configs = directionConfigs[lastDirection];
     randomNumber = (randomNumber + random.nextDouble()) % 1.0;
     double configProbability = 0.0;
@@ -103,5 +115,67 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
     }
     assert(false, 'missing case for $lastDirection');
     return 0.0;
+  }
+
+  @override
+  bool checkProcessing() => true;
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    Car,
+    Position,
+    Velocity,
+    Orientation,
+  ],
+  systems: [
+    TrackSpawningSystem,
+  ],
+)
+class CarOnTrackSystem extends _$CarOnTrackSystem {
+  @override
+  void processEntity(Entity entity) {
+    final position = positionMapper[entity];
+    final lastX = position.x.floor();
+    final nextX = lastX + 1.0;
+    final percentage = (position.x - lastX);
+    final lastY = trackSpawningSystem.yPositions[lastX];
+    final nextY = trackSpawningSystem.yPositions[nextX];
+    final y = lastY * (1.0 - percentage) + nextY * percentage;
+    if (position.y - carHeightHalf * 2 < y && position.y > y) {
+      position.y = y + carHeightHalf;
+      velocityMapper[entity].y = 0.0;
+    }
+    if (position.y >= y && position.y <= y + carHeightHalf) {
+      final beforeLastY = trackSpawningSystem.yPositions[lastX - 1];
+      final previousY = beforeLastY * (1.0 - percentage) + lastY * percentage;
+      orientationMapper[entity].angle = atan2(y - previousY, 1.0);
+    }
+  }
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    Track,
+    Position,
+  ],
+  systems: [
+    TrackSpawningSystem,
+  ],
+  manager: [
+    TagManager,
+  ],
+)
+class TrackDespawningSystem extends _$TrackDespawningSystem {
+  @override
+  void processEntity(Entity entity) {
+    final cameraX = positionMapper[tagManager.getEntity(cameraTag)].x.floor();
+    final x = positionMapper[entity].x.floor();
+    if (x < cameraX - 100) {
+      entity.deleteFromWorld();
+      trackSpawningSystem.yPositions.remove(x);
+    }
   }
 }
