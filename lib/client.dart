@@ -25,6 +25,9 @@ class Game extends GameBase {
     final tagManager = TagManager();
     world.addManager(tagManager);
     world.addManager(WebGlViewProjectionMatrixManager(1000));
+    final camera = addEntity([
+      Position(0.0, 0.0),
+    ]);
     final player = addEntity([
       Controller(),
       Position(0.0, 0.0),
@@ -72,7 +75,7 @@ class Game extends GameBase {
 //    ]);
 
     tagManager.register(player, playerTag);
-    tagManager.register(player, cameraTag);
+    tagManager.register(camera, cameraTag);
   }
 
   @override
@@ -87,6 +90,7 @@ class Game extends GameBase {
         AccelerationSystem(),
         MovementSystem(),
         CarOnTrackSystem(),
+        CameraMovementSystem(),
         WebGlCanvasCleaningSystem(gl),
         CarRenderingSystem(gl),
         TrackRenderingSystem(gl),

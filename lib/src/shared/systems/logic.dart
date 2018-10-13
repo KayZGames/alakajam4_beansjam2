@@ -228,3 +228,29 @@ class TrackDespawningSystem extends _$TrackDespawningSystem {
     }
   }
 }
+
+@Generate(
+  VoidEntitySystem,
+  mapper: [
+    Position,
+    Velocity,
+  ],
+  manager: [
+    TagManager,
+    CameraManager,
+  ],
+)
+class CameraMovementSystem extends _$CameraMovementSystem {
+  @override
+  void processSystem() {
+    final player = tagManager.getEntity(playerTag);
+    final camera = tagManager.getEntity(cameraTag);
+    final cameraPosition = positionMapper[camera];
+    final playerPosition = positionMapper[player];
+    final playerVelX = velocityMapper[player].x;
+    cameraPosition
+      ..x = playerPosition.x + sqrt((playerVelX - 10) * 10)
+      ..y = playerPosition.y;
+    cameraManager.gameZoom = sqrt(playerVelX) / 50;
+  }
+}

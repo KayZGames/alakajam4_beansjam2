@@ -108,3 +108,18 @@ abstract class _$TrackDespawningSystem extends EntityProcessingSystem {
     tagManager = world.getManager<TagManager>();
   }
 }
+
+abstract class _$CameraMovementSystem extends VoidEntitySystem {
+  Mapper<Position> positionMapper;
+  Mapper<Velocity> velocityMapper;
+  TagManager tagManager;
+  CameraManager cameraManager;
+  @override
+  void initialize() {
+    super.initialize();
+    positionMapper = Mapper<Position>(world);
+    velocityMapper = Mapper<Velocity>(world);
+    tagManager = world.getManager<TagManager>();
+    cameraManager = world.getManager<CameraManager>();
+  }
+}
