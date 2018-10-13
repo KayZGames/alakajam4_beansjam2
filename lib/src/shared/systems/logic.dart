@@ -111,7 +111,6 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
       lastX += trackWidthHalf * 2;
       lastY += getYOffset();
       yPositions[lastX.floor()] = lastY;
-      print(yPositions);
     }
   }
 
