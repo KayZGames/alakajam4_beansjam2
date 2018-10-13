@@ -19,6 +19,34 @@ abstract class _$ControllerToActionSystem extends EntityProcessingSystem {
   }
 }
 
+abstract class _$GravitySystem extends EntityProcessingSystem {
+  Mapper<Acceleration> accelerationMapper;
+  Mapper<Orientation> orientationMapper;
+  Mapper<Mass> massMapper;
+  _$GravitySystem()
+      : super(Aspect.empty()..allOf([Acceleration, Orientation, Mass]));
+  @override
+  void initialize() {
+    super.initialize();
+    accelerationMapper = Mapper<Acceleration>(world);
+    orientationMapper = Mapper<Orientation>(world);
+    massMapper = Mapper<Mass>(world);
+  }
+}
+
+abstract class _$AccelerationSystem extends EntityProcessingSystem {
+  Mapper<Acceleration> accelerationMapper;
+  Mapper<Velocity> velocityMapper;
+  _$AccelerationSystem()
+      : super(Aspect.empty()..allOf([Acceleration, Velocity]));
+  @override
+  void initialize() {
+    super.initialize();
+    accelerationMapper = Mapper<Acceleration>(world);
+    velocityMapper = Mapper<Velocity>(world);
+  }
+}
+
 abstract class _$MovementSystem extends EntityProcessingSystem {
   Mapper<Velocity> velocityMapper;
   Mapper<Position> positionMapper;

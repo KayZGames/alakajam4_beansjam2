@@ -30,6 +30,43 @@ class ControllerToActionSystem extends _$ControllerToActionSystem {
 @Generate(
   EntityProcessingSystem,
   allOf: [
+    Acceleration,
+    Orientation,
+    Mass,
+  ],
+)
+class GravitySystem extends _$GravitySystem {
+  @override
+  void processEntity(Entity entity) {
+    final angle = orientationMapper[entity].angle;
+    accelerationMapper[entity]
+      ..x += sin(angle + pi) * 9.81
+      ..y -= 9.81;
+  }
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    Acceleration,
+    Velocity,
+  ],
+)
+class AccelerationSystem extends _$AccelerationSystem {
+  @override
+  void processEntity(Entity entity) {
+    final acceleration = accelerationMapper[entity];
+    var velocity = velocityMapper[entity];
+    velocity
+      ..x += acceleration.x * world.delta
+      ..y += acceleration.y * world.delta;
+    velocity.x = min(50.0, max(10.0, velocity.x));
+  }
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
     Velocity,
     Position,
     Orientation,

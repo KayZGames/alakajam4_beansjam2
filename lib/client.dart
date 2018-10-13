@@ -34,42 +34,42 @@ class Game extends GameBase {
       Orientation(0.0),
       Car(),
     ]);
-    addEntity([
-      Controller(),
-      Position(-carWidthHalf * 2 - 0.1, 0.0),
-      Acceleration(0.0, 0.0),
-      Velocity(0.0, 0.0),
-      Mass(),
-      Orientation(0.0),
-      Car(),
-    ]);
-    addEntity([
-      Controller(),
-      Position(-carWidthHalf * 4 - 0.2, 0.0),
-      Acceleration(0.0, 0.0),
-      Velocity(0.0, 0.0),
-      Mass(),
-      Orientation(0.0),
-      Car(),
-    ]);
-    addEntity([
-      Controller(),
-      Position(-carWidthHalf * 6 - 0.3, 0.0),
-      Acceleration(0.0, 0.0),
-      Velocity(0.0, 0.0),
-      Mass(),
-      Orientation(0.0),
-      Car(),
-    ]);
-    addEntity([
-      Controller(),
-      Position(-carWidthHalf * 8 - 0.4, 0.0),
-      Acceleration(0.0, 0.0),
-      Velocity(0.0, 0.0),
-      Mass(),
-      Orientation(0.0),
-      Car(),
-    ]);
+//    addEntity([
+//      Controller(),
+//      Position(-carWidthHalf * 2 - 0.1, 0.0),
+//      Acceleration(0.0, 0.0),
+//      Velocity(0.0, 0.0),
+//      Mass(),
+//      Orientation(0.0),
+//      Car(),
+//    ]);
+//    addEntity([
+//      Controller(),
+//      Position(-carWidthHalf * 4 - 0.2, 0.0),
+//      Acceleration(0.0, 0.0),
+//      Velocity(0.0, 0.0),
+//      Mass(),
+//      Orientation(0.0),
+//      Car(),
+//    ]);
+//    addEntity([
+//      Controller(),
+//      Position(-carWidthHalf * 6 - 0.3, 0.0),
+//      Acceleration(0.0, 0.0),
+//      Velocity(0.0, 0.0),
+//      Mass(),
+//      Orientation(0.0),
+//      Car(),
+//    ]);
+//    addEntity([
+//      Controller(),
+//      Position(-carWidthHalf * 8 - 0.4, 0.0),
+//      Acceleration(0.0, 0.0),
+//      Velocity(0.0, 0.0),
+//      Mass(),
+//      Orientation(0.0),
+//      Car(),
+//    ]);
 
     tagManager.register(player, playerTag);
     tagManager.register(player, cameraTag);
@@ -83,8 +83,8 @@ class Game extends GameBase {
         ControllerSystem(),
         ResetAccelerationSystem(),
         ControllerToActionSystem(),
-        SimpleGravitySystem(),
-        SimpleAccelerationSystem(),
+        GravitySystem(),
+        AccelerationSystem(),
         MovementSystem(),
         CarOnTrackSystem(),
         WebGlCanvasCleaningSystem(gl),
