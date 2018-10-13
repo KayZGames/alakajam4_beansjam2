@@ -137,21 +137,23 @@ class CarOnTrackSystem extends _$CarOnTrackSystem {
   @override
   void processEntity(Entity entity) {
     final position = positionMapper[entity];
+    final orientation = orientationMapper[entity];
     final lastX = position.x.floor();
     final nextX = lastX + 1.0;
-    final percentage = (position.x - lastX);
+    final percentage = (position.x - lastX) / (nextX - lastX);
     final lastY = trackSpawningSystem.yPositions[lastX];
     final nextY = trackSpawningSystem.yPositions[nextX];
     final y = lastY * (1.0 - percentage) + nextY * percentage;
-    if (position.y - carHeightHalf * 2 < y && position.y > y) {
-      position.y = y + carHeightHalf;
-      velocityMapper[entity].y = 0.0;
-    }
-    if (position.y >= y && position.y <= y + carHeightHalf) {
-      final beforeLastY = trackSpawningSystem.yPositions[lastX - 1];
-      final previousY = beforeLastY * (1.0 - percentage) + lastY * percentage;
-      orientationMapper[entity].angle = atan2(y - previousY, 1.0);
-    }
+    ;
+
+    position.y = y + carHeightHalf + trackHeightHalf;
+    velocityMapper[entity].y = 0.0;
+
+    final beforeLastY = trackSpawningSystem.yPositions[lastX - 1];
+    final previousY = beforeLastY * (1.0 - percentage) + lastY * percentage;
+    orientation.angle = atan2(y - previousY, nextX - lastX);
+
+    position.y -= sin(orientation.angle) * (carHeightHalf + trackHeightHalf);
   }
 }
 

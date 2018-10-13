@@ -90,6 +90,9 @@ class CarRenderingSystem extends _$CarRenderingSystem {
     CameraManager,
     WebGlViewProjectionMatrixManager,
   ],
+  systems: [
+    TrackSpawningSystem,
+  ],
 )
 class TrackRenderingSystem extends _$TrackRenderingSystem {
   List<Attrib> attributes;
@@ -107,13 +110,15 @@ class TrackRenderingSystem extends _$TrackRenderingSystem {
     final itemOffset = index * 2 * 4;
     final indexOffset = index * 3 * 2;
     final vertexOffset = index * 4;
+    final lastY =
+        trackSpawningSystem.yPositions[(position.x - 1.0).floor()] ?? 0.0;
 
     items[itemOffset] = position.x - trackWidthHalf;
-    items[itemOffset + 1] = position.y - trackHeightHalf;
+    items[itemOffset + 1] = lastY - trackHeightHalf;
     items[itemOffset + 2] = position.x + trackWidthHalf;
     items[itemOffset + 3] = position.y - trackHeightHalf;
     items[itemOffset + 4] = position.x - trackWidthHalf;
-    items[itemOffset + 5] = position.y + trackHeightHalf;
+    items[itemOffset + 5] = lastY + trackHeightHalf;
     items[itemOffset + 6] = position.x + trackWidthHalf;
     items[itemOffset + 7] = position.y + trackHeightHalf;
 

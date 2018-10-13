@@ -29,6 +29,7 @@ abstract class _$CarRenderingSystem extends WebGlRenderingSystem {
 abstract class _$TrackRenderingSystem extends WebGlRenderingSystem {
   Mapper<Track> trackMapper;
   Mapper<Position> positionMapper;
+  TrackSpawningSystem trackSpawningSystem;
   CameraManager cameraManager;
   WebGlViewProjectionMatrixManager webGlViewProjectionMatrixManager;
   _$TrackRenderingSystem(RenderingContext gl)
@@ -38,6 +39,7 @@ abstract class _$TrackRenderingSystem extends WebGlRenderingSystem {
     super.initialize();
     trackMapper = Mapper<Track>(world);
     positionMapper = Mapper<Position>(world);
+    trackSpawningSystem = world.getSystem<TrackSpawningSystem>();
     cameraManager = world.getManager<CameraManager>();
     webGlViewProjectionMatrixManager =
         world.getManager<WebGlViewProjectionMatrixManager>();
