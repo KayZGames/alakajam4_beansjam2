@@ -1,6 +1,6 @@
 import 'package:alakajam4_beansjam2/shared.dart';
 import 'package:dartemis/dartemis.dart';
-import 'package:gamedev_helpers/gamedev_helpers_shared.dart';
+import 'package:gamedev_helpers/gamedev_helpers_shared.dart' hide Acceleration;
 import 'package:alakajam4_beansjam2/src/shared/components.dart';
 
 part 'logic.g.dart';
@@ -10,6 +10,7 @@ part 'logic.g.dart';
   allOf: const [
     Controller,
     Acceleration,
+    Orientation,
   ],
   systems: [
     CarOnTrackSystem,
@@ -22,14 +23,41 @@ class ControllerToActionSystem extends _$ControllerToActionSystem {
   void processEntity(Entity entity) {
     final controller = controllerMapper[entity];
     final acceleration = accelerationMapper[entity];
+    final orientation = orientationMapper[entity];
     if (controller.left) {
-      acceleration.x -= _acc;
+      acceleration.addAcceleration(_acc, orientation.angle + pi);
     } else if (controller.right) {
-      acceleration.x += _acc;
+      acceleration.addAcceleration(_acc, orientation.angle);
     }
     if (controller.space) {
       carOnTrackSystem.maglockActive = !carOnTrackSystem.maglockActive;
+      if (carOnTrackSystem.maglockActive) {
+        entity
+          ..addComponent(OnTrack())
+          ..changedInWorld();
+      } else {
+        entity
+          ..removeComponent<OnTrack>()
+          ..changedInWorld();
+      }
     }
+  }
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    Acceleration,
+    Mass,
+  ],
+  exclude: [
+    OnTrack,
+  ],
+)
+class GravitySystem extends _$GravitySystem {
+  @override
+  void processEntity(Entity entity) {
+    accelerationMapper[entity].addAcceleration(-9.81, 3 * pi / 2);
   }
 }
 
@@ -39,15 +67,15 @@ class ControllerToActionSystem extends _$ControllerToActionSystem {
     Acceleration,
     Orientation,
     Mass,
+    OnTrack,
   ],
 )
-class GravitySystem extends _$GravitySystem {
+class OnTrackGravitySystem extends _$OnTrackGravitySystem {
   @override
   void processEntity(Entity entity) {
-    final angle = orientationMapper[entity].angle;
+    final orientation = orientationMapper[entity];
     accelerationMapper[entity]
-      ..x += sin(angle + pi) * 9.81
-      ..y -= 9.81;
+        .addAcceleration(-9.81 * sin(orientation.angle), orientation.angle);
   }
 }
 
@@ -64,9 +92,24 @@ class AccelerationSystem extends _$AccelerationSystem {
     final acceleration = accelerationMapper[entity];
     var velocity = velocityMapper[entity];
     velocity
-      ..x += acceleration.x * world.delta
-      ..y += acceleration.y * world.delta;
+      ..x += acceleration.value * cos(acceleration.angle) * world.delta
+      ..y += acceleration.value * sin(acceleration.angle) * world.delta;
     velocity.x = min(50.0, max(10.0, velocity.x));
+  }
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    Acceleration,
+  ],
+)
+class ResetAccelerationSystem extends _$ResetAccelerationSystem {
+  @override
+  void processEntity(Entity entity) {
+    accelerationMapper[entity]
+      ..value = 0.0
+      ..angle = 0.0;
   }
 }
 
@@ -85,7 +128,7 @@ class MovementSystem extends _$MovementSystem {
     final angle = orientationMapper[entity].angle;
     positionMapper[entity]
       ..x += velocity.x * world.delta * cos(angle)
-      ..y += velocity.y * world.delta;
+      ..y += velocity.y * world.delta * sin(angle);
   }
 }
 
@@ -173,7 +216,9 @@ class CarOnTrackSystem extends _$CarOnTrackSystem {
     final averageY = currentY * (1.0 - percentage) + nextY * percentage;
     final lastAverageY = lastY * (1.0 - percentage) + currentY * percentage;
     orientation.angle = atan2(averageY - lastAverageY, currentX - lastX);
-    velocityMapper[entity].y = 0.0;
+    if (orientation.angle == 0.0) {
+      velocityMapper[entity].y = 0.0;
+    }
     position.y = averageY +
         carHeightHalf +
         trackHeightHalf -

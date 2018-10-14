@@ -9,30 +9,50 @@ part of 'logic.dart';
 abstract class _$ControllerToActionSystem extends EntityProcessingSystem {
   Mapper<Controller> controllerMapper;
   Mapper<Acceleration> accelerationMapper;
+  Mapper<Orientation> orientationMapper;
   CarOnTrackSystem carOnTrackSystem;
   _$ControllerToActionSystem()
-      : super(Aspect.empty()..allOf([Controller, Acceleration]));
+      : super(Aspect.empty()..allOf([Controller, Acceleration, Orientation]));
   @override
   void initialize() {
     super.initialize();
     controllerMapper = Mapper<Controller>(world);
     accelerationMapper = Mapper<Acceleration>(world);
+    orientationMapper = Mapper<Orientation>(world);
     carOnTrackSystem = world.getSystem<CarOnTrackSystem>();
   }
 }
 
 abstract class _$GravitySystem extends EntityProcessingSystem {
   Mapper<Acceleration> accelerationMapper;
-  Mapper<Orientation> orientationMapper;
   Mapper<Mass> massMapper;
   _$GravitySystem()
-      : super(Aspect.empty()..allOf([Acceleration, Orientation, Mass]));
+      : super(Aspect.empty()
+          ..allOf([Acceleration, Mass])
+          ..exclude([OnTrack]));
+  @override
+  void initialize() {
+    super.initialize();
+    accelerationMapper = Mapper<Acceleration>(world);
+    massMapper = Mapper<Mass>(world);
+  }
+}
+
+abstract class _$OnTrackGravitySystem extends EntityProcessingSystem {
+  Mapper<Acceleration> accelerationMapper;
+  Mapper<Orientation> orientationMapper;
+  Mapper<Mass> massMapper;
+  Mapper<OnTrack> onTrackMapper;
+  _$OnTrackGravitySystem()
+      : super(
+            Aspect.empty()..allOf([Acceleration, Orientation, Mass, OnTrack]));
   @override
   void initialize() {
     super.initialize();
     accelerationMapper = Mapper<Acceleration>(world);
     orientationMapper = Mapper<Orientation>(world);
     massMapper = Mapper<Mass>(world);
+    onTrackMapper = Mapper<OnTrack>(world);
   }
 }
 
@@ -46,6 +66,16 @@ abstract class _$AccelerationSystem extends EntityProcessingSystem {
     super.initialize();
     accelerationMapper = Mapper<Acceleration>(world);
     velocityMapper = Mapper<Velocity>(world);
+  }
+}
+
+abstract class _$ResetAccelerationSystem extends EntityProcessingSystem {
+  Mapper<Acceleration> accelerationMapper;
+  _$ResetAccelerationSystem() : super(Aspect.empty()..allOf([Acceleration]));
+  @override
+  void initialize() {
+    super.initialize();
+    accelerationMapper = Mapper<Acceleration>(world);
   }
 }
 

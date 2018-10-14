@@ -2,7 +2,8 @@ library shared;
 
 import 'dart:math';
 
-export 'package:gamedev_helpers/gamedev_helpers_shared.dart';
+export 'package:gamedev_helpers/gamedev_helpers_shared.dart'
+    hide Acceleration, ResetAccelerationSystem;
 
 export 'src/shared/components.dart';
 export 'src/shared/systems/logic.dart';

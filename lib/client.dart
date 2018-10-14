@@ -2,7 +2,8 @@ library client;
 
 import 'dart:html';
 import 'package:alakajam4_beansjam2/shared.dart';
-import 'package:gamedev_helpers/gamedev_helpers.dart';
+import 'package:gamedev_helpers/gamedev_helpers.dart'
+    hide Acceleration, ResetAccelerationSystem;
 
 import 'src/client/systems/events.dart';
 import 'src/client/systems/rendering.dart';
@@ -36,6 +37,7 @@ class Game extends GameBase {
       Mass(),
       Orientation(0.0),
       Car(),
+      OnTrack(),
     ]);
 //    addEntity([
 //      Controller(),
@@ -92,6 +94,7 @@ class Game extends GameBase {
         ResetAccelerationSystem(),
         ControllerToActionSystem(),
         GravitySystem(),
+        OnTrackGravitySystem(),
         AccelerationSystem(),
         MovementSystem(),
         CarOnTrackSystem(),
