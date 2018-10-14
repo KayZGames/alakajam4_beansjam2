@@ -96,13 +96,16 @@ class MagneticForceSystem extends _$MagneticForceSystem {
   ],
   manager: [
     MagLockManager,
+    GameStateManager,
   ],
 )
 class OnTrackGravitySystem extends _$OnTrackGravitySystem {
   @override
   void processEntity(Entity entity) {
     final orientation = orientationMapper[entity];
-    if (!magLockManager.magLockActive || orientation.angle < 0.0) {
+    if (!magLockManager.magLockActive ||
+        orientation.angle < 0.0 ||
+        gameStateManager.screensaverMode) {
       accelerationMapper[entity]
           .addAcceleration(-9.81 * sin(orientation.angle), orientation.angle);
     }
@@ -137,6 +140,9 @@ class AccelerationSystem extends _$AccelerationSystem {
     OnTrack,
     Orientation,
   ],
+  manager: [
+    GameStateManager,
+  ],
 )
 class OnTrackAccelerationSystem extends _$OnTrackAccelerationSystem {
   @override
@@ -145,7 +151,8 @@ class OnTrackAccelerationSystem extends _$OnTrackAccelerationSystem {
     final velocity = velocityMapper[entity];
     velocity.addVelocity(acceleration.value * world.delta, acceleration.angle);
     velocity.angle = orientationMapper[entity].angle;
-    velocity.value = min(50.0, max(10.0, velocity.value));
+    velocity.value = min(gameStateManager.screensaverMode ? 20.0 : 50.0,
+        max(10.0, velocity.value));
   }
 }
 
@@ -186,6 +193,9 @@ class MovementSystem extends _$MovementSystem {
   allOf: [
     Track,
   ],
+  manager: [
+    GameStateManager,
+  ],
 )
 class TrackSpawningSystem extends _$TrackSpawningSystem {
   double currentX = -50.0;
@@ -198,7 +208,15 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
   @override
   void processEntities(Iterable<Entity> entities) {
     for (var index = entities.length; index < 200; index++) {
-      currentDirection = getNextDirection();
+      if (gameStateManager.screensaverMode) {
+        TrackDirection direction;
+        do {
+          direction = getNextDirection();
+        } while (isTrackMissing(direction));
+        currentDirection = direction;
+      } else {
+        currentDirection = getNextDirection();
+      }
       final track = world.createAndAddEntity([
         Position(currentX.toDouble(), currentY.toDouble()),
         Track(currentDirection)
@@ -403,6 +421,9 @@ class CameraMovementSystem extends _$CameraMovementSystem {
   mapper: [
     Mass,
   ],
+  manager: [
+    GameStateManager,
+  ],
 )
 class TrackDestroyerSystem extends _$TrackDestroyerSystem {
   @override
@@ -418,6 +439,9 @@ class TrackDestroyerSystem extends _$TrackDestroyerSystem {
         ..changedInWorld();
     }
   }
+
+  @override
+  bool checkProcessing() => !gameStateManager.screensaverMode;
 }
 
 @Generate(
@@ -443,7 +467,9 @@ class ScoringSystem extends _$ScoringSystem {
   }
 
   @override
-  bool checkProcessing() => gameStateManager.state == GameState.running;
+  bool checkProcessing() =>
+      gameStateManager.state == GameState.running &&
+      !gameStateManager.screensaverMode;
 }
 
 @Generate(
@@ -491,8 +517,7 @@ class CarParticleSpawningSystem extends _$CarParticleSpawningSystem {
         Mass(),
         magLockManager.magLockActive
             ? Velocity(random.nextDouble() * velocity.value / 4, velocity.angle)
-            : Velocity(random.nextDouble() * 2.0,
-                velocity.angle + 7 * pi / 8),
+            : Velocity(random.nextDouble() * 2.0, velocity.angle + 7 * pi / 8),
         Acceleration(0.0, 0.0),
       ]);
     }

@@ -21,6 +21,10 @@ class GameMenuComponent {
     service.startGame();
   }
 
+  void startScreensaverMode() {
+    service.startGame(screensaverMode: true);
+  }
+
   bool get gameOver => service.gameOver;
   int get score => service.gameStateManager.score;
   int get bestScore => max(service.bestScore, score);
@@ -44,12 +48,13 @@ class GameService {
       gameStateManager.state == GameState.gameOver;
   bool get gameOver => gameStateManager.state == GameState.gameOver;
 
-  void startGame() {
+  void startGame({bool screensaverMode = false}) {
     runZoned(() {
       bestScore = max(gameStateManager.score, bestScore);
       gameStateManager
         ..score = 0
-        ..state = GameState.running;
+        ..state = GameState.running
+        ..screensaverMode = screensaverMode;
       _game?.destroy();
       _game = Game(gameStateManager);
       _game.start();

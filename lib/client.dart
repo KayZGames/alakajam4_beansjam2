@@ -55,6 +55,20 @@ class Game extends GameBase {
       TrackDestroyer(),
       Orientation(0.0)
     ]);
+    if (gameStateManager.screensaverMode) {
+      for (int i = 0; i < 5; i++) {
+        addEntity([
+          Controller(),
+          Position(-carWidthHalf * 2 * i - 0.1 * i, 0.0),
+          Acceleration(0.0, 0.0),
+          Velocity(10.0, 0.0),
+          Mass(),
+          Orientation(0.0),
+          Car(),
+          OnTrack(),
+        ]);
+      }
+    }
     tagManager.register(player, playerTag);
     tagManager.register(camera, cameraTag);
   }
@@ -77,8 +91,8 @@ class Game extends GameBase {
         CameraMovementSystem(),
         ScoringSystem(),
         WebGlCanvasCleaningSystem(gl),
-        CarRenderingSystem(gl),
         TrackRenderingSystem(gl),
+        CarRenderingSystem(gl),
         ParticleRenderingSystem(gl),
         CanvasCleaningSystem(hudCanvas),
         ScoreRenderingSystem(hudCtx),

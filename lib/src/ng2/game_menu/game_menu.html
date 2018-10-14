@@ -1,5 +1,6 @@
 <div id="main">
   <div class="story" *ngIf="!gameOver">
+    <h2>Rollercoaster Breakdown</h2>
     <p>The funfair is in town and presents its newest maglev-powered rollercoaster. But they wanted to save
       money, so they have chosen the cheapest option and now it is starting to break down.
     </p>
@@ -10,11 +11,16 @@
       accelerate and brake the car on the track only if the magnets are switched on. Sometimes you will be in a dilemma
       and will have to decide whether or not to disable the magnets to let the car jump over missing tracks.
     </p>
+    <h3>CONTROLS</h3>
+    <p><strong>SPACE</strong> - enable/disable maglev/maglock<br/>
+      <strong>A/D or left/right</strong> - accelerate/brake if the car is on the track and maglev is active
+    </p>
   </div>
   <div class="gameover" *ngIf="gameOver">
     <p>GAME OVER</p>
     <p>Your last score: {{score}}</p>
     <p>Your best score: {{bestScore}}</p>
   </div>
-  <button (click)="startGame()">Start Game</button>
+  <button (click)="startGame()">START GAME</button>
+  <button (click)="startScreensaverMode()">START SCREENSAVER MODE</button>
 </div>

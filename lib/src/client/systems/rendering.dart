@@ -232,6 +232,9 @@ class ScoreRenderingSystem extends _$ScoreRenderingSystem {
       ..fillText('$scoreText', width - scoreWidth - 5, 5)
       ..restore();
   }
+
+  @override
+  bool checkProcessing() => !gameStateManager.screensaverMode;
 }
 
 class WebGlCanvasCleaningSystem extends VoidEntitySystem {

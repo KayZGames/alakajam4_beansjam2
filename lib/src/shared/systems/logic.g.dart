@@ -65,6 +65,7 @@ abstract class _$OnTrackGravitySystem extends EntityProcessingSystem {
   Mapper<Mass> massMapper;
   Mapper<OnTrack> onTrackMapper;
   MagLockManager magLockManager;
+  GameStateManager gameStateManager;
   _$OnTrackGravitySystem()
       : super(
             Aspect.empty()..allOf([Acceleration, Orientation, Mass, OnTrack]));
@@ -76,6 +77,7 @@ abstract class _$OnTrackGravitySystem extends EntityProcessingSystem {
     massMapper = Mapper<Mass>(world);
     onTrackMapper = Mapper<OnTrack>(world);
     magLockManager = world.getManager<MagLockManager>();
+    gameStateManager = world.getManager<GameStateManager>();
   }
 }
 
@@ -99,6 +101,7 @@ abstract class _$OnTrackAccelerationSystem extends EntityProcessingSystem {
   Mapper<Velocity> velocityMapper;
   Mapper<OnTrack> onTrackMapper;
   Mapper<Orientation> orientationMapper;
+  GameStateManager gameStateManager;
   _$OnTrackAccelerationSystem()
       : super(Aspect.empty()
           ..allOf([Acceleration, Velocity, OnTrack, Orientation]));
@@ -109,6 +112,7 @@ abstract class _$OnTrackAccelerationSystem extends EntityProcessingSystem {
     velocityMapper = Mapper<Velocity>(world);
     onTrackMapper = Mapper<OnTrack>(world);
     orientationMapper = Mapper<Orientation>(world);
+    gameStateManager = world.getManager<GameStateManager>();
   }
 }
 
@@ -136,11 +140,13 @@ abstract class _$MovementSystem extends EntityProcessingSystem {
 
 abstract class _$TrackSpawningSystem extends EntitySystem {
   Mapper<Track> trackMapper;
+  GameStateManager gameStateManager;
   _$TrackSpawningSystem() : super(Aspect.empty()..allOf([Track]));
   @override
   void initialize() {
     super.initialize();
     trackMapper = Mapper<Track>(world);
+    gameStateManager = world.getManager<GameStateManager>();
   }
 }
 
@@ -209,6 +215,7 @@ abstract class _$TrackDestroyerSystem extends EntityProcessingSystem {
   Mapper<Position> positionMapper;
   Mapper<Mass> massMapper;
   TrackSpawningSystem trackSpawningSystem;
+  GameStateManager gameStateManager;
   _$TrackDestroyerSystem()
       : super(Aspect.empty()..allOf([TrackDestroyer, Position]));
   @override
@@ -218,6 +225,7 @@ abstract class _$TrackDestroyerSystem extends EntityProcessingSystem {
     positionMapper = Mapper<Position>(world);
     massMapper = Mapper<Mass>(world);
     trackSpawningSystem = world.getSystem<TrackSpawningSystem>();
+    gameStateManager = world.getManager<GameStateManager>();
   }
 }
 
