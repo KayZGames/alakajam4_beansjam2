@@ -105,6 +105,7 @@ class CarRenderingSystem extends _$CarRenderingSystem {
   manager: [
     CameraManager,
     WebGlViewProjectionMatrixManager,
+    MagLockManager,
   ],
   systems: [
     TrackSpawningSystem,
@@ -128,30 +129,31 @@ class TrackRenderingSystem extends _$TrackRenderingSystem {
     var trackDirection = trackMapper[entity].direction;
     final nextY = position.y + trackConfigs[trackDirection].yOffset;
     final alpha = isTrackMissing(trackDirection) ? 0.0 : 1.0;
+    final red = magLockManager.magLockActive ? 0.0 : 0.5;
 
     items[itemOffset++] = position.x - trackWidthHalf;
-    items[itemOffset++] = currentY - trackHeightHalf;
-    items[itemOffset++] = 1.0;
-    items[itemOffset++] = 1.0;
-    items[itemOffset++] = 1.0;
+    items[itemOffset++] = currentY - trackHeightHalf * 2;
+    items[itemOffset++] = 0.7;
+    items[itemOffset++] = 0.7;
+    items[itemOffset++] = 0.7;
     items[itemOffset++] = alpha;
     items[itemOffset++] = position.x + trackWidthHalf;
-    items[itemOffset++] = nextY - trackHeightHalf;
-    items[itemOffset++] = 1.0;
-    items[itemOffset++] = 1.0;
-    items[itemOffset++] = 1.0;
+    items[itemOffset++] = nextY - trackHeightHalf * 2;
+    items[itemOffset++] = 0.7;
+    items[itemOffset++] = 0.7;
+    items[itemOffset++] = 0.7;
     items[itemOffset++] = alpha;
     items[itemOffset++] = position.x - trackWidthHalf;
     items[itemOffset++] = currentY + trackHeightHalf;
-    items[itemOffset++] = 1.0;
-    items[itemOffset++] = 1.0;
-    items[itemOffset++] = 1.0;
+    items[itemOffset++] = red;
+    items[itemOffset++] = 0.7;
+    items[itemOffset++] = 0.7;
     items[itemOffset++] = alpha;
     items[itemOffset++] = position.x + trackWidthHalf;
     items[itemOffset++] = nextY + trackHeightHalf;
-    items[itemOffset++] = 1.0;
-    items[itemOffset++] = 1.0;
-    items[itemOffset++] = 1.0;
+    items[itemOffset++] = red;
+    items[itemOffset++] = 0.7;
+    items[itemOffset++] = 0.7;
     items[itemOffset++] = alpha;
 
     indices[indexOffset] = vertexOffset;

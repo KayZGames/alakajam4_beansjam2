@@ -32,6 +32,7 @@ abstract class _$TrackRenderingSystem extends WebGlRenderingSystem {
   TrackSpawningSystem trackSpawningSystem;
   CameraManager cameraManager;
   WebGlViewProjectionMatrixManager webGlViewProjectionMatrixManager;
+  MagLockManager magLockManager;
   _$TrackRenderingSystem(RenderingContext gl)
       : super(gl, Aspect.empty()..allOf([Track, Position]));
   @override
@@ -43,6 +44,7 @@ abstract class _$TrackRenderingSystem extends WebGlRenderingSystem {
     cameraManager = world.getManager<CameraManager>();
     webGlViewProjectionMatrixManager =
         world.getManager<WebGlViewProjectionMatrixManager>();
+    magLockManager = world.getManager<MagLockManager>();
   }
 }
 
