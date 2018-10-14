@@ -96,29 +96,33 @@ class MovementSystem extends _$MovementSystem {
   ],
 )
 class TrackSpawningSystem extends _$TrackSpawningSystem {
-  double lastX = -50.0;
-  double lastY = -carHeightHalf - trackHeightHalf;
-  TrackDirection lastDirection = TrackDirection.straight;
+  double currentX = -50.0;
+  double currentY = -carHeightHalf - trackHeightHalf;
+  TrackDirection currentDirection = TrackDirection.straight;
   double randomNumber = 0.0;
   Map<int, double> yPositions = <int, double>{};
+  Map<int, Entity> tracks = <int, Entity>{};
 
   @override
   void processEntities(Iterable<Entity> entities) {
     for (var index = entities.length; index < 200; index++) {
-      lastDirection = getNextDirection();
-      world.createAndAddEntity(
-          [Position(lastX.toDouble(), lastY.toDouble()), Track(lastDirection)]);
-      lastX += trackWidthHalf * 2;
-      lastY += getYOffset();
-      yPositions[lastX.floor()] = lastY;
+      currentDirection = getNextDirection();
+      final track = world.createAndAddEntity([
+        Position(currentX.toDouble(), currentY.toDouble()),
+        Track(currentDirection)
+      ]);
+      tracks[currentX.floor()] = track;
+      currentX += trackWidthHalf * 2;
+      currentY += getYOffsetForNextTrack();
+      yPositions[currentX.floor()] = currentY;
     }
   }
 
   TrackDirection getNextDirection() {
-    if (lastX < 10) {
+    if (currentX < 10) {
       return TrackDirection.straight;
     }
-    final configs = directionConfigs[lastDirection];
+    final configs = directionConfigs[currentDirection];
     randomNumber = (randomNumber + random.nextDouble()) % 1.0;
     double configProbability = 0.0;
     int configIndex = 0;
@@ -129,12 +133,12 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
       }
       configIndex++;
     }
-    assert(false, '$lastDirection $configProbability != 1.0');
+    assert(false, '$currentDirection $configProbability != 1.0');
     return null;
   }
 
-  double getYOffset() {
-    switch (lastDirection) {
+  double getYOffsetForNextTrack() {
+    switch (currentDirection) {
       case TrackDirection.straight:
         return 0.0;
       case TrackDirection.straightToUpwards:
@@ -155,7 +159,7 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
       case TrackDirection.downwardsToStraight:
         return -carHeightHalf;
     }
-    assert(false, 'missing case for $lastDirection');
+    assert(false, 'missing case for $currentDirection');
     return 0.0;
   }
 
@@ -222,8 +226,8 @@ class TrackDespawningSystem extends _$TrackDespawningSystem {
     final cameraX = positionMapper[tagManager.getEntity(cameraTag)].x.floor();
     final x = positionMapper[entity].x.floor();
     if (x < cameraX - 100) {
+      trackSpawningSystem..yPositions.remove(x + 1)..tracks.remove(x);
       entity.deleteFromWorld();
-      trackSpawningSystem.yPositions.remove(x);
     }
   }
 }
