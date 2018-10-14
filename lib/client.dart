@@ -52,6 +52,7 @@ class Game extends GameBase {
     addEntity([
       Position(-20.0, 0.0),
       Velocity(10.0, 0.0),
+      Acceleration(0.0, 0.0),
       TrackDestroyer(),
       Orientation(0.0)
     ]);
@@ -80,6 +81,7 @@ class Game extends GameBase {
         TrackSpawningSystem(),
         ControllerSystem(),
         ResetAccelerationSystem(),
+        TrackDestroyerAccelerationSystem(),
         ControllerToActionSystem(),
         MagneticForceSystem(),
         GravitySystem(),

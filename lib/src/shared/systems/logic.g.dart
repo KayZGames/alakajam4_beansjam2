@@ -282,3 +282,17 @@ abstract class _$ParticleExpirationSystem extends EntityProcessingSystem {
     colorMapper = Mapper<Color>(world);
   }
 }
+
+abstract class _$TrackDestroyerAccelerationSystem
+    extends EntityProcessingSystem {
+  Mapper<TrackDestroyer> trackDestroyerMapper;
+  Mapper<Acceleration> accelerationMapper;
+  _$TrackDestroyerAccelerationSystem()
+      : super(Aspect.empty()..allOf([TrackDestroyer, Acceleration]));
+  @override
+  void initialize() {
+    super.initialize();
+    trackDestroyerMapper = Mapper<TrackDestroyer>(world);
+    accelerationMapper = Mapper<Acceleration>(world);
+  }
+}

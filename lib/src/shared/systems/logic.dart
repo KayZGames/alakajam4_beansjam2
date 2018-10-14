@@ -542,3 +542,18 @@ class ParticleExpirationSystem extends _$ParticleExpirationSystem {
     }
   }
 }
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    TrackDestroyer,
+    Acceleration,
+  ],
+)
+class TrackDestroyerAccelerationSystem
+    extends _$TrackDestroyerAccelerationSystem {
+  @override
+  void processEntity(Entity entity) {
+    accelerationMapper[entity].value = 1.0;
+  }
+}
