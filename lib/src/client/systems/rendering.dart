@@ -233,3 +233,19 @@ class ScoreRenderingSystem extends _$ScoreRenderingSystem {
       ..restore();
   }
 }
+
+class WebGlCanvasCleaningSystem extends VoidEntitySystem {
+  RenderingContext gl;
+
+  WebGlCanvasCleaningSystem(this.gl);
+
+  @override
+  void initialize() {
+    gl.clearColor(0.0, 0.0, 0.1, 1.0);
+  }
+
+  @override
+  void processSystem() {
+    gl.clear(WebGL.COLOR_BUFFER_BIT | WebGL.DEPTH_BUFFER_BIT);
+  }
+}

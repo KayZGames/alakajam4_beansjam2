@@ -4,7 +4,11 @@ import 'dart:html';
 import 'package:alakajam4_beansjam2/shared.dart';
 import 'package:alakajam4_beansjam2/src/shared/managers.dart';
 import 'package:gamedev_helpers/gamedev_helpers.dart'
-    hide Acceleration, Velocity, ResetAccelerationSystem;
+    hide
+        Acceleration,
+        Velocity,
+        ResetAccelerationSystem,
+        WebGlCanvasCleaningSystem;
 
 import 'src/client/systems/events.dart';
 import 'src/client/systems/rendering.dart';
@@ -75,12 +79,15 @@ class Game extends GameBase {
         WebGlCanvasCleaningSystem(gl),
         CarRenderingSystem(gl),
         TrackRenderingSystem(gl),
+        ParticleRenderingSystem(gl),
         CanvasCleaningSystem(hudCanvas),
         ScoreRenderingSystem(hudCtx),
 //        VelocityRenderingSystem(hudCtx),
 //        FpsRenderingSystem(hudCtx, 'white'),
         TrackDespawningSystem(),
         TrackDestroyerSystem(),
+        CarParticleSpawningSystem(),
+        ParticleExpirationSystem(),
       ],
       GameBase.physics: [
         // add at least one

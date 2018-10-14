@@ -295,13 +295,23 @@ class CarOnTrackSystem extends _$CarOnTrackSystem {
     if (position.y < optimalY + trackHeightHalf &&
             position.y > optimalY - trackHeightHalf ||
         magLockManager.magLockActive && onTrackMapper.has(entity)) {
+      if (!onTrackMapper.has(entity)) {
+        if (isTrackMissing(trackMapper[currentTrack].direction) &&
+            position.y < optimalY) {
+          entity
+            ..addComponent(Falling())
+            ..changedInWorld();
+          return;
+        } else {
+          entity
+            ..addComponent(OnTrack())
+            ..changedInWorld();
+        }
+      }
       final velocity = velocityMapper[entity];
       orientation.angle = maglockedAngle;
       position.y = optimalY;
       velocity.angle = maglockedAngle;
-      entity
-        ..addComponent(OnTrack())
-        ..changedInWorld();
     } else if (position.y < optimalY) {
       if (isTrackMissing(trackMapper[currentTrack].direction)) {
         entity
@@ -434,4 +444,76 @@ class ScoringSystem extends _$ScoringSystem {
 
   @override
   bool checkProcessing() => gameStateManager.state == GameState.running;
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    Car,
+    Position,
+    Velocity,
+    Orientation,
+    OnTrack,
+  ],
+  exclude: [
+    Falling,
+  ],
+  manager: [
+    MagLockManager,
+  ],
+)
+class CarParticleSpawningSystem extends _$CarParticleSpawningSystem {
+  @override
+  void processEntity(Entity entity) {
+    final position = positionMapper[entity];
+    final velocity = velocityMapper[entity];
+    final angle = orientationMapper[entity].angle;
+    final dist =
+        sqrt(carWidthHalf * carWidthHalf + carHeightHalf * carHeightHalf);
+
+    final startX = position.x + dist * cos(angle + vertexAngle + pi);
+    final startY = position.y + dist * sin(angle + vertexAngle + pi);
+    final endX = position.x + dist * cos(angle - vertexAngle);
+    final endY = position.y + dist * sin(angle - vertexAngle);
+    for (var i = 0; i < 5; i++) {
+      var randomPos = random.nextDouble();
+      if (!magLockManager.magLockActive) {
+        randomPos = randomPos / 2;
+      }
+      world.createAndAddEntity([
+        Position(startX + randomPos * (endX - startX),
+            startY + randomPos * (endY - startY)),
+        Particle(),
+        magLockManager.magLockActive
+            ? Color(0.0, 1.0, 1.0, 1.0)
+            : Color(1.0, 0.35, 0.0, 1.0),
+        magLockManager.magLockActive ? Lifetime(0.5) : Lifetime(1.5),
+        Mass(),
+        magLockManager.magLockActive
+            ? Velocity(random.nextDouble() * velocity.value / 4, velocity.angle)
+            : Velocity(random.nextDouble() * 2.0,
+                velocity.angle + 7 * pi / 8),
+        Acceleration(0.0, 0.0),
+      ]);
+    }
+  }
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    Lifetime,
+    Particle,
+    Color,
+  ],
+)
+class ParticleExpirationSystem extends _$ParticleExpirationSystem {
+  @override
+  void processEntity(Entity entity) {
+    final l = lifetimeMapper[entity]..timeLeft -= world.delta;
+    colorMapper[entity].a = max(0.0, l.timeLeft / l.timeMax);
+    if (l.timeLeft <= 0.0) {
+      entity.deleteFromWorld();
+    }
+  }
 }

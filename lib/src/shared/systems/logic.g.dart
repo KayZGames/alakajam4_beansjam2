@@ -236,3 +236,41 @@ abstract class _$ScoringSystem extends EntityProcessingSystem {
     gameStateManager = world.getManager<GameStateManager>();
   }
 }
+
+abstract class _$CarParticleSpawningSystem extends EntityProcessingSystem {
+  Mapper<Car> carMapper;
+  Mapper<Position> positionMapper;
+  Mapper<Velocity> velocityMapper;
+  Mapper<Orientation> orientationMapper;
+  Mapper<OnTrack> onTrackMapper;
+  MagLockManager magLockManager;
+  _$CarParticleSpawningSystem()
+      : super(Aspect.empty()
+          ..allOf([Car, Position, Velocity, Orientation, OnTrack])
+          ..exclude([Falling]));
+  @override
+  void initialize() {
+    super.initialize();
+    carMapper = Mapper<Car>(world);
+    positionMapper = Mapper<Position>(world);
+    velocityMapper = Mapper<Velocity>(world);
+    orientationMapper = Mapper<Orientation>(world);
+    onTrackMapper = Mapper<OnTrack>(world);
+    magLockManager = world.getManager<MagLockManager>();
+  }
+}
+
+abstract class _$ParticleExpirationSystem extends EntityProcessingSystem {
+  Mapper<Lifetime> lifetimeMapper;
+  Mapper<Particle> particleMapper;
+  Mapper<Color> colorMapper;
+  _$ParticleExpirationSystem()
+      : super(Aspect.empty()..allOf([Lifetime, Particle, Color]));
+  @override
+  void initialize() {
+    super.initialize();
+    lifetimeMapper = Mapper<Lifetime>(world);
+    particleMapper = Mapper<Particle>(world);
+    colorMapper = Mapper<Color>(world);
+  }
+}

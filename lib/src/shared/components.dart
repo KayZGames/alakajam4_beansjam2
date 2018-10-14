@@ -67,5 +67,10 @@ class Track extends Component {
 
 class TrackDestroyer extends Component {}
 
-
 class Falling extends Component {}
+
+class Lifetime extends Component {
+  double timeLeft, timeMax;
+
+  Lifetime(this.timeMax) : timeLeft = timeMax;
+}
