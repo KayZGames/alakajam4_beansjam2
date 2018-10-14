@@ -220,3 +220,19 @@ abstract class _$TrackDestroyerSystem extends EntityProcessingSystem {
     trackSpawningSystem = world.getSystem<TrackSpawningSystem>();
   }
 }
+
+abstract class _$ScoringSystem extends EntityProcessingSystem {
+  Mapper<Controller> controllerMapper;
+  Mapper<Position> positionMapper;
+  Mapper<Falling> fallingMapper;
+  GameStateManager gameStateManager;
+  _$ScoringSystem() : super(Aspect.empty()..allOf([Controller, Position]));
+  @override
+  void initialize() {
+    super.initialize();
+    controllerMapper = Mapper<Controller>(world);
+    positionMapper = Mapper<Position>(world);
+    fallingMapper = Mapper<Falling>(world);
+    gameStateManager = world.getManager<GameStateManager>();
+  }
+}

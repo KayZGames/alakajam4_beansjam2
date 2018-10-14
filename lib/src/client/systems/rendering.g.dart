@@ -57,3 +57,12 @@ abstract class _$VelocityRenderingSystem extends EntityProcessingSystem {
     velocityMapper = Mapper<Velocity>(world);
   }
 }
+
+abstract class _$ScoreRenderingSystem extends VoidEntitySystem {
+  GameStateManager gameStateManager;
+  @override
+  void initialize() {
+    super.initialize();
+    gameStateManager = world.getManager<GameStateManager>();
+  }
+}

@@ -1,4 +1,5 @@
 import 'package:alakajam4_beansjam2/shared.dart';
+import 'package:alakajam4_beansjam2/src/shared/managers.dart';
 import 'package:dartemis/dartemis.dart';
 import 'package:gamedev_helpers/gamedev_helpers_shared.dart'
     hide Acceleration, Velocity;
@@ -409,10 +410,28 @@ class TrackDestroyerSystem extends _$TrackDestroyerSystem {
   }
 }
 
-class MagLockManager extends Manager {
-  bool magLockActive = true;
-
-  void toggleMagLock() {
-    magLockActive = !magLockActive;
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    Controller,
+    Position,
+  ],
+  mapper: [
+    Falling,
+  ],
+  manager: [
+    GameStateManager,
+  ],
+)
+class ScoringSystem extends _$ScoringSystem {
+  @override
+  void processEntity(Entity entity) {
+    if (fallingMapper.has(entity)) {
+      gameStateManager.state = GameState.gameOver;
+    }
+    gameStateManager.score = positionMapper[entity].x.floor();
   }
+
+  @override
+  bool checkProcessing() => gameStateManager.state == GameState.running;
 }

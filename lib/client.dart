@@ -2,6 +2,7 @@ library client;
 
 import 'dart:html';
 import 'package:alakajam4_beansjam2/shared.dart';
+import 'package:alakajam4_beansjam2/src/shared/managers.dart';
 import 'package:gamedev_helpers/gamedev_helpers.dart'
     hide Acceleration, Velocity, ResetAccelerationSystem;
 
@@ -22,11 +23,13 @@ class Game extends GameBase {
 
   @override
   void createEntities() {
-    world.getManager<CameraManager>().gameZoom = 0.1;
     final tagManager = TagManager();
-    world.addManager(tagManager);
-    world.addManager(WebGlViewProjectionMatrixManager(1000));
-    world.addManager(MagLockManager());
+    world.getManager<CameraManager>().gameZoom = 0.1;
+    world
+      ..addManager(tagManager)
+      ..addManager(WebGlViewProjectionMatrixManager(1000))
+      ..addManager(MagLockManager())
+      ..addManager(GameStateManager());
     final camera = addEntity([
       Position(0.0, 0.0),
     ]);
@@ -66,12 +69,14 @@ class Game extends GameBase {
         MovementSystem(),
         CarOnTrackSystem(),
         CameraMovementSystem(),
+        ScoringSystem(),
         WebGlCanvasCleaningSystem(gl),
         CarRenderingSystem(gl),
         TrackRenderingSystem(gl),
         CanvasCleaningSystem(hudCanvas),
-        VelocityRenderingSystem(hudCtx),
-        FpsRenderingSystem(hudCtx, 'white'),
+        ScoreRenderingSystem(hudCtx),
+//        VelocityRenderingSystem(hudCtx),
+//        FpsRenderingSystem(hudCtx, 'white'),
         TrackDespawningSystem(),
         TrackDestroyerSystem(),
       ],

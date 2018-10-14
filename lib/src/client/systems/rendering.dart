@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:web_gl';
 
 import 'package:alakajam4_beansjam2/shared.dart';
+import 'package:alakajam4_beansjam2/src/shared/managers.dart';
 import 'package:gamedev_helpers/gamedev_helpers.dart' hide Velocity;
 
 part 'rendering.g.dart';
@@ -126,9 +127,7 @@ class TrackRenderingSystem extends _$TrackRenderingSystem {
     final currentY = position.y;
     var trackDirection = trackMapper[entity].direction;
     final nextY = position.y + trackConfigs[trackDirection].yOffset;
-    final alpha = isTrackMissing(trackDirection)
-        ? 0.0
-        : 1.0;
+    final alpha = isTrackMissing(trackDirection) ? 0.0 : 1.0;
 
     items[itemOffset++] = position.x - trackWidthHalf;
     items[itemOffset++] = currentY - trackHeightHalf;
@@ -205,6 +204,30 @@ class VelocityRenderingSystem extends _$VelocityRenderingSystem {
       ..save()
       ..fillText(
           'Velocity: ${velocity.value}:${velocity.angle / pi * 180}', 5, 20)
+      ..restore();
+  }
+}
+
+@Generate(
+  VoidEntitySystem,
+  manager: [
+    GameStateManager,
+  ],
+)
+class ScoreRenderingSystem extends _$ScoreRenderingSystem {
+  CanvasRenderingContext2D ctx;
+  ScoreRenderingSystem(this.ctx);
+
+  @override
+  void processSystem() {
+    final width = ctx.canvas.width;
+    final scoreText = '${gameStateManager.score}';
+    final scoreWidth = ctx.measureText(scoreText).width;
+    ctx
+      ..save()
+      ..fillStyle = 'aquablue'
+      ..fillText('Score:', width - max(scoreWidth + 45, 100), 5)
+      ..fillText('$scoreText', width - scoreWidth - 5, 5)
       ..restore();
   }
 }
