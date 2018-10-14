@@ -1,3 +1,4 @@
+import 'package:alakajam4_beansjam2/shared.dart';
 import 'package:dartemis/dartemis.dart';
 
 class Controller extends Component {
@@ -36,6 +37,14 @@ class Track extends Component {
   Track(this.direction);
 }
 
+class TrackDestroyer extends Component {}
+
+class TrackConfig {
+  double yOffset;
+  List<DirectionConfig> directionConfigs;
+  TrackConfig(this.yOffset, this.directionConfigs);
+}
+
 enum TrackDirection {
   straight,
   straightToUpwards,
@@ -57,86 +66,87 @@ class DirectionConfig {
   DirectionConfig(this.direction, this.probablility);
 }
 
-Map<TrackDirection, List<DirectionConfig>> directionConfigs =
+Map<TrackDirection, TrackConfig> trackConfigs =
     Map.fromIterable(TrackDirection.values, value: _generateConfig);
 
-List<DirectionConfig> _generateConfig(dynamic direction) {
-  final result = <DirectionConfig>[];
+TrackConfig _generateConfig(dynamic direction) {
+  TrackConfig result;
   switch (direction as TrackDirection) {
     case TrackDirection.straight:
-      result.addAll([
+      result = TrackConfig(0.0, [
         DirectionConfig(TrackDirection.straight, 0.8),
         DirectionConfig(TrackDirection.straightToUpwards, 0.1),
         DirectionConfig(TrackDirection.straightToDownwards, 0.1)
       ]);
       break;
     case TrackDirection.straightToUpwards:
-      result.addAll([
+      result = TrackConfig(carHeightHalf, [
         DirectionConfig(TrackDirection.upwards, 0.9),
         DirectionConfig(TrackDirection.upwardsToStraight, 0.1),
       ]);
       break;
     case TrackDirection.upwards:
-      result.addAll([
+      result = TrackConfig(carHeight, [
         DirectionConfig(TrackDirection.upwards, 0.8),
         DirectionConfig(TrackDirection.upwardsToStraight, 0.2),
       ]);
       break;
     case TrackDirection.upwardsToStraight:
-      result.addAll([
+      result = TrackConfig(carHeightHalf, [
         DirectionConfig(TrackDirection.straight, 0.8),
         DirectionConfig(TrackDirection.straightToUpwards, 0.1),
         DirectionConfig(TrackDirection.straightToDownwards, 0.1)
       ]);
       break;
     case TrackDirection.straightToDownwards:
-      result.addAll([
+      result = TrackConfig(-carHeightHalf, [
         DirectionConfig(TrackDirection.downwards, 0.9),
         DirectionConfig(TrackDirection.downwardsToStraight, 0.1),
       ]);
       break;
     case TrackDirection.downwards:
-      result.addAll([
+      result = TrackConfig(-carHeight, [
         DirectionConfig(TrackDirection.downwards, 0.8),
         DirectionConfig(TrackDirection.downwardsToStraight, 0.2),
       ]);
       break;
     case TrackDirection.downwardsToStraight:
-      result.addAll([
+      result = TrackConfig(-carHeightHalf, [
         DirectionConfig(TrackDirection.straight, 0.8),
         DirectionConfig(TrackDirection.straightToUpwards, 0.1),
         DirectionConfig(TrackDirection.straightToDownwards, 0.1)
       ]);
       break;
     case TrackDirection.straightToMissing:
-      result.addAll([
+      result = TrackConfig(-carHeightHalf, [
         DirectionConfig(TrackDirection.missing, 1.0),
       ]);
       break;
     case TrackDirection.upwardsToMissing:
-      result.addAll([
+      result = TrackConfig(-carHeight, [
         DirectionConfig(TrackDirection.missing, 1.0),
       ]);
       break;
     case TrackDirection.missing:
-      result.addAll([
+      result = TrackConfig(-carHeight, [
         DirectionConfig(TrackDirection.missingToStraight, 0.75),
         DirectionConfig(TrackDirection.missingToDownwards, 0.25),
       ]);
       break;
     case TrackDirection.missingToStraight:
-      result.addAll([
+      result = TrackConfig(-carHeightHalf, [
         DirectionConfig(TrackDirection.straight, 1.0),
       ]);
       break;
     case TrackDirection.missingToDownwards:
-      result.addAll([
+      result = TrackConfig(-carHeight, [
         DirectionConfig(TrackDirection.downwards, 1.0),
       ]);
       break;
   }
-  final totalProbability =
-      result.fold(0, (sum, config) => sum + config.probablility);
+  assert(result != null, 'missing case for $direction');
+  final totalProbability = result.directionConfigs
+      .fold(0, (sum, config) => sum + config.probablility);
   assert(totalProbability == 1.0,
       'total probability for $direction is $totalProbability');
   return result;

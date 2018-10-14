@@ -32,7 +32,7 @@ class Game extends GameBase {
       Controller(),
       Position(0.0, 0.0),
       Acceleration(0.0, 0.0),
-      Velocity(0.0, 0.0),
+      Velocity(10.0, 0.0),
       Mass(),
       Orientation(0.0),
       Car(),
@@ -73,7 +73,12 @@ class Game extends GameBase {
 //      Orientation(0.0),
 //      Car(),
 //    ]);
-
+    addEntity([
+      Position(-20.0, 0.0),
+      Velocity(10.0, 0.0),
+      TrackDestroyer(),
+      Orientation(0.0)
+    ]);
     tagManager.register(player, playerTag);
     tagManager.register(camera, cameraTag);
   }
@@ -98,6 +103,7 @@ class Game extends GameBase {
         VelocityRenderingSystem(hudCtx),
         FpsRenderingSystem(hudCtx, 'white'),
         TrackDespawningSystem(),
+        TrackDestroyerSystem(),
       ],
       GameBase.physics: [
         // add at least one

@@ -113,7 +113,7 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
       ]);
       tracks[currentX.floor()] = track;
       currentX += trackWidthHalf * 2;
-      currentY += getYOffsetForNextTrack();
+      currentY += trackConfigs[currentDirection].yOffset;
       yPositions[currentX.floor()] = currentY;
     }
   }
@@ -122,7 +122,7 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
     if (currentX < 10) {
       return TrackDirection.straight;
     }
-    final configs = directionConfigs[currentDirection];
+    final configs = trackConfigs[currentDirection].directionConfigs;
     randomNumber = (randomNumber + random.nextDouble()) % 1.0;
     double configProbability = 0.0;
     int configIndex = 0;
@@ -135,32 +135,6 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
     }
     assert(false, '$currentDirection $configProbability != 1.0');
     return null;
-  }
-
-  double getYOffsetForNextTrack() {
-    switch (currentDirection) {
-      case TrackDirection.straight:
-        return 0.0;
-      case TrackDirection.straightToUpwards:
-        return carHeightHalf;
-      case TrackDirection.upwards:
-        return carHeightHalf * 2;
-      case TrackDirection.upwardsToStraight:
-        return carHeightHalf;
-      case TrackDirection.straightToDownwards:
-      case TrackDirection.straightToMissing:
-      case TrackDirection.missingToDownwards:
-      case TrackDirection.missingToStraight:
-        return -carHeightHalf;
-      case TrackDirection.downwards:
-      case TrackDirection.missing:
-      case TrackDirection.upwardsToMissing:
-        return -carHeightHalf * 2;
-      case TrackDirection.downwardsToStraight:
-        return -carHeightHalf;
-    }
-    assert(false, 'missing case for $currentDirection');
-    return 0.0;
   }
 
   @override
@@ -186,21 +160,24 @@ class CarOnTrackSystem extends _$CarOnTrackSystem {
   void processEntity(Entity entity) {
     final position = positionMapper[entity];
     final orientation = orientationMapper[entity];
-    final lastX = position.x.floor();
-    final nextX = lastX + 1.0;
-    final percentage = (position.x - lastX) / (nextX - lastX);
-    final lastY = trackSpawningSystem.yPositions[lastX];
-    final nextY = trackSpawningSystem.yPositions[nextX];
-    final y = lastY * (1.0 - percentage) + nextY * percentage;
-
-    position.y = y + carHeightHalf + trackHeightHalf;
+    final currentX = position.x.floor() + 1;
+    final nextX = currentX + 1;
+    final lastX = currentX - 1;
+    final percentage = (position.x - lastX) / (nextX - currentX);
+    final currentTrack = trackSpawningSystem.tracks[currentX];
+    final nextTrack = trackSpawningSystem.tracks[nextX];
+    final lastTrack = trackSpawningSystem.tracks[lastX] ?? currentTrack;
+    final currentY = positionMapper[currentTrack].y;
+    final nextY = positionMapper[nextTrack].y;
+    final lastY = positionMapper[lastTrack].y;
+    final averageY = currentY * (1.0 - percentage) + nextY * percentage;
+    final lastAverageY = lastY * (1.0 - percentage) + currentY * percentage;
+    orientation.angle = atan2(averageY - lastAverageY, currentX - lastX);
     velocityMapper[entity].y = 0.0;
-
-    final beforeLastY = trackSpawningSystem.yPositions[lastX - 1];
-    final previousY = beforeLastY * (1.0 - percentage) + lastY * percentage;
-    orientation.angle = atan2(y - previousY, nextX - lastX);
-
-    position.y -= sin(orientation.angle) * (carHeightHalf + trackHeightHalf);
+    position.y = averageY +
+        carHeightHalf +
+        trackHeightHalf -
+        sin(orientation.angle) * (carHeightHalf + trackHeightHalf * 2);
   }
 
   @override
@@ -252,8 +229,28 @@ class CameraMovementSystem extends _$CameraMovementSystem {
     final playerPosition = positionMapper[player];
     final playerVelX = velocityMapper[player].x;
     cameraPosition
-      ..x = playerPosition.x + sqrt((playerVelX - 10) * 10)
+      ..x = playerPosition.x + sqrt((playerVelX) * 10)
       ..y = playerPosition.y;
     cameraManager.gameZoom = sqrt(playerVelX) / 50;
+  }
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    TrackDestroyer,
+    Position,
+  ],
+  systems: [
+    TrackSpawningSystem,
+  ],
+)
+class TrackDestroyerSystem extends _$TrackDestroyerSystem {
+  @override
+  void processEntity(Entity entity) {
+    final x = positionMapper[entity].x.floor();
+    final track = trackSpawningSystem.tracks.remove(x);
+    track?.deleteFromWorld();
+    trackSpawningSystem.yPositions.remove(x + 1);
   }
 }

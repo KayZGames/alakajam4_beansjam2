@@ -123,3 +123,18 @@ abstract class _$CameraMovementSystem extends VoidEntitySystem {
     cameraManager = world.getManager<CameraManager>();
   }
 }
+
+abstract class _$TrackDestroyerSystem extends EntityProcessingSystem {
+  Mapper<TrackDestroyer> trackDestroyerMapper;
+  Mapper<Position> positionMapper;
+  TrackSpawningSystem trackSpawningSystem;
+  _$TrackDestroyerSystem()
+      : super(Aspect.empty()..allOf([TrackDestroyer, Position]));
+  @override
+  void initialize() {
+    super.initialize();
+    trackDestroyerMapper = Mapper<TrackDestroyer>(world);
+    positionMapper = Mapper<Position>(world);
+    trackSpawningSystem = world.getSystem<TrackSpawningSystem>();
+  }
+}
