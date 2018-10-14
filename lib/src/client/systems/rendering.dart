@@ -20,33 +20,47 @@ part 'rendering.g.dart';
   ],
 )
 class CarRenderingSystem extends _$CarRenderingSystem {
-  List<Attrib> attributes;
+  List<Attrib> attributes = [Attrib('pos', 2), Attrib('aColor', 4)];
 
   Float32List items;
   Uint16List indices;
 
-  CarRenderingSystem(RenderingContext gl) : super(gl) {
-    attributes = [Attrib('pos', 2)];
-  }
+  CarRenderingSystem(RenderingContext gl) : super(gl);
 
   @override
   void processEntity(int index, Entity entity) {
     final position = positionMapper[entity];
     final angle = orientationMapper[entity].angle;
-    final itemOffset = index * 2 * 4;
+    var itemOffset = index * 6 * 4;
     final indexOffset = index * 3 * 2;
     final vertexOffset = index * 4;
     final dist =
         sqrt(carWidthHalf * carWidthHalf + carHeightHalf * carHeightHalf);
 
-    items[itemOffset] = position.x + dist * cos(angle + vertexAngle + pi);
-    items[itemOffset + 1] = position.y + dist * sin(angle + vertexAngle + pi);
-    items[itemOffset + 2] = position.x + dist * cos(angle - vertexAngle);
-    items[itemOffset + 3] = position.y + dist * sin(angle - vertexAngle);
-    items[itemOffset + 4] = position.x + dist * cos(angle - vertexAngle + pi);
-    items[itemOffset + 5] = position.y + dist * sin(angle - vertexAngle + pi);
-    items[itemOffset + 6] = position.x + dist * cos(angle + vertexAngle);
-    items[itemOffset + 7] = position.y + dist * sin(angle + vertexAngle);
+    items[itemOffset++] = position.x + dist * cos(angle + vertexAngle + pi);
+    items[itemOffset++] = position.y + dist * sin(angle + vertexAngle + pi);
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = position.x + dist * cos(angle - vertexAngle);
+    items[itemOffset++] = position.y + dist * sin(angle - vertexAngle);
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = position.x + dist * cos(angle - vertexAngle + pi);
+    items[itemOffset++] = position.y + dist * sin(angle - vertexAngle + pi);
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = position.x + dist * cos(angle + vertexAngle);
+    items[itemOffset++] = position.y + dist * sin(angle + vertexAngle);
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
 
     indices[indexOffset] = vertexOffset;
     indices[indexOffset + 1] = vertexOffset + 1;
@@ -65,12 +79,13 @@ class CarRenderingSystem extends _$CarRenderingSystem {
             .create2dViewProjectionMatrix()
             .storage);
 
-    drawTriangles(attributes, items, indices);
+    bufferElements(attributes, items, indices);
+    gl.drawElements(WebGL.TRIANGLES, length * 3 * 2, WebGL.UNSIGNED_SHORT, 0);
   }
 
   @override
   void updateLength(int length) {
-    items = Float32List(length * 2 * 4);
+    items = Float32List(length * 6 * 4);
     indices = Uint16List(length * 3 * 2);
   }
 
@@ -95,33 +110,50 @@ class CarRenderingSystem extends _$CarRenderingSystem {
   ],
 )
 class TrackRenderingSystem extends _$TrackRenderingSystem {
-  List<Attrib> attributes;
+  List<Attrib> attributes = [Attrib('pos', 2), Attrib('aColor', 4)];
 
   Float32List items;
   Uint16List indices;
 
-  TrackRenderingSystem(RenderingContext gl) : super(gl) {
-    attributes = [Attrib('pos', 2)];
-  }
+  TrackRenderingSystem(RenderingContext gl) : super(gl);
 
   @override
   void processEntity(int index, Entity entity) {
     final position = positionMapper[entity];
-    final itemOffset = index * 2 * 4;
+    var itemOffset = index * 6 * 4;
     final indexOffset = index * 3 * 2;
     final vertexOffset = index * 4;
     final currentY = position.y;
-    final nextY =
-        position.y + trackConfigs[trackMapper[entity].direction].yOffset;
+    var trackDirection = trackMapper[entity].direction;
+    final nextY = position.y + trackConfigs[trackDirection].yOffset;
+    final alpha = isTrackMissing(trackDirection)
+        ? 0.0
+        : 1.0;
 
-    items[itemOffset] = position.x - trackWidthHalf;
-    items[itemOffset + 1] = currentY - trackHeightHalf;
-    items[itemOffset + 2] = position.x + trackWidthHalf;
-    items[itemOffset + 3] = nextY - trackHeightHalf;
-    items[itemOffset + 4] = position.x - trackWidthHalf;
-    items[itemOffset + 5] = currentY + trackHeightHalf;
-    items[itemOffset + 6] = position.x + trackWidthHalf;
-    items[itemOffset + 7] = nextY + trackHeightHalf;
+    items[itemOffset++] = position.x - trackWidthHalf;
+    items[itemOffset++] = currentY - trackHeightHalf;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = alpha;
+    items[itemOffset++] = position.x + trackWidthHalf;
+    items[itemOffset++] = nextY - trackHeightHalf;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = alpha;
+    items[itemOffset++] = position.x - trackWidthHalf;
+    items[itemOffset++] = currentY + trackHeightHalf;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = alpha;
+    items[itemOffset++] = position.x + trackWidthHalf;
+    items[itemOffset++] = nextY + trackHeightHalf;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = 1.0;
+    items[itemOffset++] = alpha;
 
     indices[indexOffset] = vertexOffset;
     indices[indexOffset + 1] = vertexOffset + 1;
@@ -140,12 +172,13 @@ class TrackRenderingSystem extends _$TrackRenderingSystem {
             .create2dViewProjectionMatrix()
             .storage);
 
-    drawTriangles(attributes, items, indices);
+    bufferElements(attributes, items, indices);
+    gl.drawElements(WebGL.TRIANGLES, length * 3 * 2, WebGL.UNSIGNED_SHORT, 0);
   }
 
   @override
   void updateLength(int length) {
-    items = Float32List(length * 2 * 4);
+    items = Float32List(length * 6 * 4);
     indices = Uint16List(length * 3 * 2);
   }
 

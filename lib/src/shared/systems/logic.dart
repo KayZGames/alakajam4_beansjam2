@@ -252,6 +252,7 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
   mapper: [
     OnTrack,
     Falling,
+    Track,
   ],
 )
 class CarOnTrackSystem extends _$CarOnTrackSystem {
@@ -263,6 +264,13 @@ class CarOnTrackSystem extends _$CarOnTrackSystem {
     if (fallingMapper.has(currentTrack)) {
       entity
         ..addComponent(Falling())
+        ..removeComponent<OnTrack>()
+        ..changedInWorld();
+      return;
+    }
+    if (isTrackMissing(trackMapper[currentTrack].direction) &&
+        onTrackMapper.has(entity)) {
+      entity
         ..removeComponent<OnTrack>()
         ..changedInWorld();
       return;
@@ -294,16 +302,22 @@ class CarOnTrackSystem extends _$CarOnTrackSystem {
         ..addComponent(OnTrack())
         ..changedInWorld();
     } else if (position.y < optimalY) {
-      final velocity = velocityMapper[entity];
-      orientation.angle = maglockedAngle;
-      position.y = optimalY;
-      velocity
-        ..value = velocity.value * cos(orientation.angle - velocity.angle)
-        ..value = min(50.0, max(10.0, velocity.value))
-        ..angle = maglockedAngle;
-      entity
-        ..addComponent(OnTrack())
-        ..changedInWorld();
+      if (isTrackMissing(trackMapper[currentTrack].direction)) {
+        entity
+          ..addComponent(Falling())
+          ..changedInWorld();
+      } else {
+        final velocity = velocityMapper[entity];
+        orientation.angle = maglockedAngle;
+        position.y = optimalY;
+        velocity
+          ..value = velocity.value * cos(orientation.angle - velocity.angle)
+          ..value = min(50.0, max(10.0, velocity.value))
+          ..angle = maglockedAngle;
+        entity
+          ..addComponent(OnTrack())
+          ..changedInWorld();
+      }
     } else {
       entity
         ..removeComponent<OnTrack>()

@@ -151,6 +151,7 @@ abstract class _$CarOnTrackSystem extends EntityProcessingSystem {
   Mapper<Orientation> orientationMapper;
   Mapper<OnTrack> onTrackMapper;
   Mapper<Falling> fallingMapper;
+  Mapper<Track> trackMapper;
   TrackSpawningSystem trackSpawningSystem;
   MagLockManager magLockManager;
   _$CarOnTrackSystem()
@@ -166,6 +167,7 @@ abstract class _$CarOnTrackSystem extends EntityProcessingSystem {
     orientationMapper = Mapper<Orientation>(world);
     onTrackMapper = Mapper<OnTrack>(world);
     fallingMapper = Mapper<Falling>(world);
+    trackMapper = Mapper<Track>(world);
     trackSpawningSystem = world.getSystem<TrackSpawningSystem>();
     magLockManager = world.getManager<MagLockManager>();
   }
