@@ -73,6 +73,8 @@ class TrackConfig {
   TrackConfig(this.yOffset, this.directionConfigs);
 }
 
+class Falling extends Component {}
+
 enum TrackDirection {
   straight,
   straightToUpwards,

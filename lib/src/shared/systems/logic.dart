@@ -58,10 +58,31 @@ class GravitySystem extends _$GravitySystem {
   @override
   void processEntity(Entity entity) {
     accelerationMapper[entity].addAcceleration(9.81, -pi / 2);
-    if (magLockManager.magLockActive) {
-      accelerationMapper[entity].addAcceleration(20, -pi / 2);
-    }
   }
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    Acceleration,
+    Car,
+  ],
+  exclude: [
+    OnTrack,
+    Falling,
+  ],
+  manager: [
+    MagLockManager,
+  ],
+)
+class MagneticForceSystem extends _$MagneticForceSystem {
+  @override
+  void processEntity(Entity entity) {
+    accelerationMapper[entity].addAcceleration(20, -pi / 2);
+  }
+
+  @override
+  bool checkProcessing() => magLockManager.magLockActive;
 }
 
 @Generate(
@@ -219,6 +240,9 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
     Velocity,
     Orientation,
   ],
+  exclude: [
+    Falling,
+  ],
   systems: [
     TrackSpawningSystem,
   ],
@@ -227,18 +251,26 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
   ],
   mapper: [
     OnTrack,
+    Falling,
   ],
 )
 class CarOnTrackSystem extends _$CarOnTrackSystem {
   @override
   void processEntity(Entity entity) {
     final position = positionMapper[entity];
-    final orientation = orientationMapper[entity];
     final currentX = position.x.floor() + 1;
+    final currentTrack = trackSpawningSystem.tracks[currentX];
+    if (fallingMapper.has(currentTrack)) {
+      entity
+        ..addComponent(Falling())
+        ..removeComponent<OnTrack>()
+        ..changedInWorld();
+      return;
+    }
+    final orientation = orientationMapper[entity];
     final nextX = currentX + 1;
     final lastX = currentX - 1;
     final percentage = (position.x - lastX) / (nextX - currentX);
-    final currentTrack = trackSpawningSystem.tracks[currentX];
     final nextTrack = trackSpawningSystem.tracks[nextX];
     final lastTrack = trackSpawningSystem.tracks[lastX] ?? currentTrack;
     final currentY = positionMapper[currentTrack].y;
@@ -343,14 +375,23 @@ class CameraMovementSystem extends _$CameraMovementSystem {
   systems: [
     TrackSpawningSystem,
   ],
+  mapper: [
+    Mass,
+  ],
 )
 class TrackDestroyerSystem extends _$TrackDestroyerSystem {
   @override
   void processEntity(Entity entity) {
     final x = positionMapper[entity].x.floor();
-    final track = trackSpawningSystem.tracks.remove(x);
-    track?.deleteFromWorld();
-    trackSpawningSystem.yPositions.remove(x + 1);
+    final track = trackSpawningSystem.tracks[x];
+    if (track != null && !massMapper.has(track)) {
+      track
+        ..addComponent(Falling())
+        ..addComponent(Mass())
+        ..addComponent(Acceleration(0.0, 0.0))
+        ..addComponent(Velocity(0.0, 0.0))
+        ..changedInWorld();
+    }
   }
 }
 

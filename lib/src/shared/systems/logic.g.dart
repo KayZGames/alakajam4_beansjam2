@@ -42,6 +42,23 @@ abstract class _$GravitySystem extends EntityProcessingSystem {
   }
 }
 
+abstract class _$MagneticForceSystem extends EntityProcessingSystem {
+  Mapper<Acceleration> accelerationMapper;
+  Mapper<Car> carMapper;
+  MagLockManager magLockManager;
+  _$MagneticForceSystem()
+      : super(Aspect.empty()
+          ..allOf([Acceleration, Car])
+          ..exclude([OnTrack, Falling]));
+  @override
+  void initialize() {
+    super.initialize();
+    accelerationMapper = Mapper<Acceleration>(world);
+    carMapper = Mapper<Car>(world);
+    magLockManager = world.getManager<MagLockManager>();
+  }
+}
+
 abstract class _$OnTrackGravitySystem extends EntityProcessingSystem {
   Mapper<Acceleration> accelerationMapper;
   Mapper<Orientation> orientationMapper;
@@ -133,10 +150,13 @@ abstract class _$CarOnTrackSystem extends EntityProcessingSystem {
   Mapper<Velocity> velocityMapper;
   Mapper<Orientation> orientationMapper;
   Mapper<OnTrack> onTrackMapper;
+  Mapper<Falling> fallingMapper;
   TrackSpawningSystem trackSpawningSystem;
   MagLockManager magLockManager;
   _$CarOnTrackSystem()
-      : super(Aspect.empty()..allOf([Car, Position, Velocity, Orientation]));
+      : super(Aspect.empty()
+          ..allOf([Car, Position, Velocity, Orientation])
+          ..exclude([Falling]));
   @override
   void initialize() {
     super.initialize();
@@ -145,6 +165,7 @@ abstract class _$CarOnTrackSystem extends EntityProcessingSystem {
     velocityMapper = Mapper<Velocity>(world);
     orientationMapper = Mapper<Orientation>(world);
     onTrackMapper = Mapper<OnTrack>(world);
+    fallingMapper = Mapper<Falling>(world);
     trackSpawningSystem = world.getSystem<TrackSpawningSystem>();
     magLockManager = world.getManager<MagLockManager>();
   }
@@ -184,6 +205,7 @@ abstract class _$CameraMovementSystem extends VoidEntitySystem {
 abstract class _$TrackDestroyerSystem extends EntityProcessingSystem {
   Mapper<TrackDestroyer> trackDestroyerMapper;
   Mapper<Position> positionMapper;
+  Mapper<Mass> massMapper;
   TrackSpawningSystem trackSpawningSystem;
   _$TrackDestroyerSystem()
       : super(Aspect.empty()..allOf([TrackDestroyer, Position]));
@@ -192,6 +214,7 @@ abstract class _$TrackDestroyerSystem extends EntityProcessingSystem {
     super.initialize();
     trackDestroyerMapper = Mapper<TrackDestroyer>(world);
     positionMapper = Mapper<Position>(world);
+    massMapper = Mapper<Mass>(world);
     trackSpawningSystem = world.getSystem<TrackSpawningSystem>();
   }
 }
