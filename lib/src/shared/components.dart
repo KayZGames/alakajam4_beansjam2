@@ -43,6 +43,19 @@ class Acceleration extends Component {
   }
 }
 
+class Velocity extends Component {
+  double value;
+  double angle;
+  Velocity(this.value, this.angle);
+
+  void addVelocity(double value, double angle) {
+    final x = this.value * cos(this.angle) + value * cos(angle);
+    final y = this.value * sin(this.angle) + value * sin(angle);
+    this.angle = atan2(y, x);
+    this.value = sqrt(y * y + x * x);
+  }
+}
+
 class Car extends Component {}
 
 class OnTrack extends Component {}

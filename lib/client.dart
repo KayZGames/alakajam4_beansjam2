@@ -3,7 +3,7 @@ library client;
 import 'dart:html';
 import 'package:alakajam4_beansjam2/shared.dart';
 import 'package:gamedev_helpers/gamedev_helpers.dart'
-    hide Acceleration, ResetAccelerationSystem;
+    hide Acceleration, Velocity, ResetAccelerationSystem;
 
 import 'src/client/systems/events.dart';
 import 'src/client/systems/rendering.dart';
@@ -96,6 +96,7 @@ class Game extends GameBase {
         GravitySystem(),
         OnTrackGravitySystem(),
         AccelerationSystem(),
+        OnTrackAccelerationSystem(),
         MovementSystem(),
         CarOnTrackSystem(),
         CameraMovementSystem(),

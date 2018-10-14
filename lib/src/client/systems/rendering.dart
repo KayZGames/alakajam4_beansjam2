@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:web_gl';
 
 import 'package:alakajam4_beansjam2/shared.dart';
-import 'package:gamedev_helpers/gamedev_helpers.dart';
+import 'package:gamedev_helpers/gamedev_helpers.dart' hide Velocity;
 
 part 'rendering.g.dart';
 
@@ -170,7 +170,8 @@ class VelocityRenderingSystem extends _$VelocityRenderingSystem {
     final velocity = velocityMapper[entity];
     ctx
       ..save()
-      ..fillText('Velocity: ${velocity.x}:${velocity.y}', 5, 20)
+      ..fillText(
+          'Velocity: ${velocity.value}:${velocity.angle / pi * 180}', 5, 20)
       ..restore();
   }
 }

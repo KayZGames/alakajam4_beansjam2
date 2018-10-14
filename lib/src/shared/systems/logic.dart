@@ -1,6 +1,7 @@
 import 'package:alakajam4_beansjam2/shared.dart';
 import 'package:dartemis/dartemis.dart';
-import 'package:gamedev_helpers/gamedev_helpers_shared.dart' hide Acceleration;
+import 'package:gamedev_helpers/gamedev_helpers_shared.dart'
+    hide Acceleration, Velocity;
 import 'package:alakajam4_beansjam2/src/shared/components.dart';
 
 part 'logic.g.dart';
@@ -57,7 +58,7 @@ class ControllerToActionSystem extends _$ControllerToActionSystem {
 class GravitySystem extends _$GravitySystem {
   @override
   void processEntity(Entity entity) {
-    accelerationMapper[entity].addAcceleration(-9.81, 3 * pi / 2);
+    accelerationMapper[entity].addAcceleration(9.81, -pi / 2);
   }
 }
 
@@ -85,16 +86,37 @@ class OnTrackGravitySystem extends _$OnTrackGravitySystem {
     Acceleration,
     Velocity,
   ],
+  exclude: [
+    OnTrack,
+  ],
 )
 class AccelerationSystem extends _$AccelerationSystem {
   @override
   void processEntity(Entity entity) {
     final acceleration = accelerationMapper[entity];
-    var velocity = velocityMapper[entity];
-    velocity
-      ..x += acceleration.value * cos(acceleration.angle) * world.delta
-      ..y += acceleration.value * sin(acceleration.angle) * world.delta;
-    velocity.x = min(50.0, max(10.0, velocity.x));
+    final velocity = velocityMapper[entity];
+    velocity.addVelocity(acceleration.value * world.delta, acceleration.angle);
+    velocity.value = min(50.0, max(10.0, velocity.value));
+  }
+}
+
+@Generate(
+  EntityProcessingSystem,
+  allOf: [
+    Acceleration,
+    Velocity,
+    OnTrack,
+    Orientation,
+  ],
+)
+class OnTrackAccelerationSystem extends _$OnTrackAccelerationSystem {
+  @override
+  void processEntity(Entity entity) {
+    final acceleration = accelerationMapper[entity];
+    final velocity = velocityMapper[entity];
+    velocity.addVelocity(acceleration.value * world.delta, acceleration.angle);
+    velocity.angle = orientationMapper[entity].angle;
+    velocity.value = min(50.0, max(10.0, velocity.value));
   }
 }
 
@@ -118,17 +140,15 @@ class ResetAccelerationSystem extends _$ResetAccelerationSystem {
   allOf: [
     Velocity,
     Position,
-    Orientation,
   ],
 )
 class MovementSystem extends _$MovementSystem {
   @override
   void processEntity(Entity entity) {
     final velocity = velocityMapper[entity];
-    final angle = orientationMapper[entity].angle;
     positionMapper[entity]
-      ..x += velocity.x * world.delta * cos(angle)
-      ..y += velocity.y * world.delta * sin(angle);
+      ..x += velocity.value * world.delta * cos(velocity.angle)
+      ..y += velocity.value * world.delta * sin(velocity.angle);
   }
 }
 
@@ -191,6 +211,7 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
     Position,
     Velocity,
     Orientation,
+    OnTrack,
   ],
   systems: [
     TrackSpawningSystem,
@@ -216,9 +237,6 @@ class CarOnTrackSystem extends _$CarOnTrackSystem {
     final averageY = currentY * (1.0 - percentage) + nextY * percentage;
     final lastAverageY = lastY * (1.0 - percentage) + currentY * percentage;
     orientation.angle = atan2(averageY - lastAverageY, currentX - lastX);
-    if (orientation.angle == 0.0) {
-      velocityMapper[entity].y = 0.0;
-    }
     position.y = averageY +
         carHeightHalf +
         trackHeightHalf -
@@ -272,7 +290,8 @@ class CameraMovementSystem extends _$CameraMovementSystem {
     final camera = tagManager.getEntity(cameraTag);
     final cameraPosition = positionMapper[camera];
     final playerPosition = positionMapper[player];
-    final playerVelX = velocityMapper[player].x;
+    var velocity = velocityMapper[player];
+    final playerVelX = velocity.value * cos(velocity.angle);
     cameraPosition
       ..x = playerPosition.x + sqrt((playerVelX) * 10)
       ..y = playerPosition.y;

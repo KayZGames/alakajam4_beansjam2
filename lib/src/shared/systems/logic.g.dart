@@ -60,12 +60,32 @@ abstract class _$AccelerationSystem extends EntityProcessingSystem {
   Mapper<Acceleration> accelerationMapper;
   Mapper<Velocity> velocityMapper;
   _$AccelerationSystem()
-      : super(Aspect.empty()..allOf([Acceleration, Velocity]));
+      : super(Aspect.empty()
+          ..allOf([Acceleration, Velocity])
+          ..exclude([OnTrack]));
   @override
   void initialize() {
     super.initialize();
     accelerationMapper = Mapper<Acceleration>(world);
     velocityMapper = Mapper<Velocity>(world);
+  }
+}
+
+abstract class _$OnTrackAccelerationSystem extends EntityProcessingSystem {
+  Mapper<Acceleration> accelerationMapper;
+  Mapper<Velocity> velocityMapper;
+  Mapper<OnTrack> onTrackMapper;
+  Mapper<Orientation> orientationMapper;
+  _$OnTrackAccelerationSystem()
+      : super(Aspect.empty()
+          ..allOf([Acceleration, Velocity, OnTrack, Orientation]));
+  @override
+  void initialize() {
+    super.initialize();
+    accelerationMapper = Mapper<Acceleration>(world);
+    velocityMapper = Mapper<Velocity>(world);
+    onTrackMapper = Mapper<OnTrack>(world);
+    orientationMapper = Mapper<Orientation>(world);
   }
 }
 
@@ -82,15 +102,12 @@ abstract class _$ResetAccelerationSystem extends EntityProcessingSystem {
 abstract class _$MovementSystem extends EntityProcessingSystem {
   Mapper<Velocity> velocityMapper;
   Mapper<Position> positionMapper;
-  Mapper<Orientation> orientationMapper;
-  _$MovementSystem()
-      : super(Aspect.empty()..allOf([Velocity, Position, Orientation]));
+  _$MovementSystem() : super(Aspect.empty()..allOf([Velocity, Position]));
   @override
   void initialize() {
     super.initialize();
     velocityMapper = Mapper<Velocity>(world);
     positionMapper = Mapper<Position>(world);
-    orientationMapper = Mapper<Orientation>(world);
   }
 }
 
@@ -109,9 +126,11 @@ abstract class _$CarOnTrackSystem extends EntityProcessingSystem {
   Mapper<Position> positionMapper;
   Mapper<Velocity> velocityMapper;
   Mapper<Orientation> orientationMapper;
+  Mapper<OnTrack> onTrackMapper;
   TrackSpawningSystem trackSpawningSystem;
   _$CarOnTrackSystem()
-      : super(Aspect.empty()..allOf([Car, Position, Velocity, Orientation]));
+      : super(Aspect.empty()
+          ..allOf([Car, Position, Velocity, Orientation, OnTrack]));
   @override
   void initialize() {
     super.initialize();
@@ -119,6 +138,7 @@ abstract class _$CarOnTrackSystem extends EntityProcessingSystem {
     positionMapper = Mapper<Position>(world);
     velocityMapper = Mapper<Velocity>(world);
     orientationMapper = Mapper<Orientation>(world);
+    onTrackMapper = Mapper<OnTrack>(world);
     trackSpawningSystem = world.getSystem<TrackSpawningSystem>();
   }
 }
