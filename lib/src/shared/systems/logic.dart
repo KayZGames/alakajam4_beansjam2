@@ -13,8 +13,11 @@ part 'logic.g.dart';
     Acceleration,
     Orientation,
   ],
-  systems: [
-    CarOnTrackSystem,
+  manager: [
+    MagLockManager,
+  ],
+  mapper: [
+    OnTrack,
   ],
 )
 class ControllerToActionSystem extends _$ControllerToActionSystem {
@@ -25,22 +28,15 @@ class ControllerToActionSystem extends _$ControllerToActionSystem {
     final controller = controllerMapper[entity];
     final acceleration = accelerationMapper[entity];
     final orientation = orientationMapper[entity];
-    if (controller.left) {
-      acceleration.addAcceleration(_acc, orientation.angle + pi);
-    } else if (controller.right) {
-      acceleration.addAcceleration(_acc, orientation.angle);
+    if (magLockManager.magLockActive && onTrackMapper.has(entity)) {
+      if (controller.left) {
+        acceleration.addAcceleration(_acc, orientation.angle + pi);
+      } else if (controller.right) {
+        acceleration.addAcceleration(_acc, orientation.angle);
+      }
     }
     if (controller.space) {
-      carOnTrackSystem.maglockActive = !carOnTrackSystem.maglockActive;
-      if (carOnTrackSystem.maglockActive) {
-        entity
-          ..addComponent(OnTrack())
-          ..changedInWorld();
-      } else {
-        entity
-          ..removeComponent<OnTrack>()
-          ..changedInWorld();
-      }
+      magLockManager.toggleMagLock();
     }
   }
 }
@@ -54,11 +50,17 @@ class ControllerToActionSystem extends _$ControllerToActionSystem {
   exclude: [
     OnTrack,
   ],
+  manager: [
+    MagLockManager,
+  ],
 )
 class GravitySystem extends _$GravitySystem {
   @override
   void processEntity(Entity entity) {
     accelerationMapper[entity].addAcceleration(9.81, -pi / 2);
+    if (magLockManager.magLockActive) {
+      accelerationMapper[entity].addAcceleration(20, -pi / 2);
+    }
   }
 }
 
@@ -70,13 +72,18 @@ class GravitySystem extends _$GravitySystem {
     Mass,
     OnTrack,
   ],
+  manager: [
+    MagLockManager,
+  ],
 )
 class OnTrackGravitySystem extends _$OnTrackGravitySystem {
   @override
   void processEntity(Entity entity) {
     final orientation = orientationMapper[entity];
-    accelerationMapper[entity]
-        .addAcceleration(-9.81 * sin(orientation.angle), orientation.angle);
+    if (!magLockManager.magLockActive || orientation.angle < 0.0) {
+      accelerationMapper[entity]
+          .addAcceleration(-9.81 * sin(orientation.angle), orientation.angle);
+    }
   }
 }
 
@@ -211,15 +218,18 @@ class TrackSpawningSystem extends _$TrackSpawningSystem {
     Position,
     Velocity,
     Orientation,
-    OnTrack,
   ],
   systems: [
     TrackSpawningSystem,
   ],
+  manager: [
+    MagLockManager,
+  ],
+  mapper: [
+    OnTrack,
+  ],
 )
 class CarOnTrackSystem extends _$CarOnTrackSystem {
-  bool maglockActive = true;
-
   @override
   void processEntity(Entity entity) {
     final position = positionMapper[entity];
@@ -236,15 +246,38 @@ class CarOnTrackSystem extends _$CarOnTrackSystem {
     final lastY = positionMapper[lastTrack].y;
     final averageY = currentY * (1.0 - percentage) + nextY * percentage;
     final lastAverageY = lastY * (1.0 - percentage) + currentY * percentage;
-    orientation.angle = atan2(averageY - lastAverageY, currentX - lastX);
-    position.y = averageY +
+    final optimalY = averageY +
         carHeightHalf +
         trackHeightHalf -
         sin(orientation.angle) * (carHeightHalf + trackHeightHalf * 2);
+    final maglockedAngle = atan2(averageY - lastAverageY, currentX - lastX);
+    if (position.y < optimalY + trackHeightHalf &&
+            position.y > optimalY - trackHeightHalf ||
+        magLockManager.magLockActive && onTrackMapper.has(entity)) {
+      final velocity = velocityMapper[entity];
+      orientation.angle = maglockedAngle;
+      position.y = optimalY;
+      velocity.angle = maglockedAngle;
+      entity
+        ..addComponent(OnTrack())
+        ..changedInWorld();
+    } else if (position.y < optimalY) {
+      final velocity = velocityMapper[entity];
+      orientation.angle = maglockedAngle;
+      position.y = optimalY;
+      velocity
+        ..value = velocity.value * cos(orientation.angle - velocity.angle)
+        ..value = min(50.0, max(10.0, velocity.value))
+        ..angle = maglockedAngle;
+      entity
+        ..addComponent(OnTrack())
+        ..changedInWorld();
+    } else {
+      entity
+        ..removeComponent<OnTrack>()
+        ..changedInWorld();
+    }
   }
-
-  @override
-  bool checkProcessing() => maglockActive;
 }
 
 @Generate(
@@ -263,9 +296,9 @@ class CarOnTrackSystem extends _$CarOnTrackSystem {
 class TrackDespawningSystem extends _$TrackDespawningSystem {
   @override
   void processEntity(Entity entity) {
-    final cameraX = positionMapper[tagManager.getEntity(cameraTag)].x.floor();
+    final playerX = positionMapper[tagManager.getEntity(playerTag)].x.floor();
     final x = positionMapper[entity].x.floor();
-    if (x < cameraX - 100) {
+    if (x < playerX - 100) {
       trackSpawningSystem..yPositions.remove(x + 1)..tracks.remove(x);
       entity.deleteFromWorld();
     }
@@ -290,12 +323,14 @@ class CameraMovementSystem extends _$CameraMovementSystem {
     final camera = tagManager.getEntity(cameraTag);
     final cameraPosition = positionMapper[camera];
     final playerPosition = positionMapper[player];
-    var velocity = velocityMapper[player];
-    final playerVelX = velocity.value * cos(velocity.angle);
+    final velocity = velocityMapper[player];
+    final smoothingFactor = 0.9 * world.delta;
     cameraPosition
-      ..x = playerPosition.x + sqrt((playerVelX) * 10)
+      ..x = cameraPosition.x * (1 - smoothingFactor) +
+          smoothingFactor * (playerPosition.x + sqrt(velocity.value - 5.0) * 10)
       ..y = playerPosition.y;
-    cameraManager.gameZoom = sqrt(playerVelX) / 50;
+    cameraManager.gameZoom = cameraManager.gameZoom * (1 - smoothingFactor) +
+        smoothingFactor * sqrt(velocity.value) / 50;
   }
 }
 
@@ -316,5 +351,13 @@ class TrackDestroyerSystem extends _$TrackDestroyerSystem {
     final track = trackSpawningSystem.tracks.remove(x);
     track?.deleteFromWorld();
     trackSpawningSystem.yPositions.remove(x + 1);
+  }
+}
+
+class MagLockManager extends Manager {
+  bool magLockActive = true;
+
+  void toggleMagLock() {
+    magLockActive = !magLockActive;
   }
 }

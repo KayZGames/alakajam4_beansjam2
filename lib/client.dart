@@ -26,6 +26,7 @@ class Game extends GameBase {
     final tagManager = TagManager();
     world.addManager(tagManager);
     world.addManager(WebGlViewProjectionMatrixManager(1000));
+    world.addManager(MagLockManager());
     final camera = addEntity([
       Position(0.0, 0.0),
     ]);

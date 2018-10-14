@@ -208,7 +208,7 @@ packages:
     description:
       path: "."
       ref: "games/alakajam4_beansjam2"
-      resolved-ref: "7001a6c5a4d68f452d00bf5cead7459ea830f0da"
+      resolved-ref: c4bf38a8a80a8497d7515544933b6ae41bd54fca
       url: "git://github.com/kayzgames/gamedev_helpers.git"
     source: git
     version: "0.0.1-dev"

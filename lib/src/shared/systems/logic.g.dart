@@ -10,7 +10,8 @@ abstract class _$ControllerToActionSystem extends EntityProcessingSystem {
   Mapper<Controller> controllerMapper;
   Mapper<Acceleration> accelerationMapper;
   Mapper<Orientation> orientationMapper;
-  CarOnTrackSystem carOnTrackSystem;
+  Mapper<OnTrack> onTrackMapper;
+  MagLockManager magLockManager;
   _$ControllerToActionSystem()
       : super(Aspect.empty()..allOf([Controller, Acceleration, Orientation]));
   @override
@@ -19,13 +20,15 @@ abstract class _$ControllerToActionSystem extends EntityProcessingSystem {
     controllerMapper = Mapper<Controller>(world);
     accelerationMapper = Mapper<Acceleration>(world);
     orientationMapper = Mapper<Orientation>(world);
-    carOnTrackSystem = world.getSystem<CarOnTrackSystem>();
+    onTrackMapper = Mapper<OnTrack>(world);
+    magLockManager = world.getManager<MagLockManager>();
   }
 }
 
 abstract class _$GravitySystem extends EntityProcessingSystem {
   Mapper<Acceleration> accelerationMapper;
   Mapper<Mass> massMapper;
+  MagLockManager magLockManager;
   _$GravitySystem()
       : super(Aspect.empty()
           ..allOf([Acceleration, Mass])
@@ -35,6 +38,7 @@ abstract class _$GravitySystem extends EntityProcessingSystem {
     super.initialize();
     accelerationMapper = Mapper<Acceleration>(world);
     massMapper = Mapper<Mass>(world);
+    magLockManager = world.getManager<MagLockManager>();
   }
 }
 
@@ -43,6 +47,7 @@ abstract class _$OnTrackGravitySystem extends EntityProcessingSystem {
   Mapper<Orientation> orientationMapper;
   Mapper<Mass> massMapper;
   Mapper<OnTrack> onTrackMapper;
+  MagLockManager magLockManager;
   _$OnTrackGravitySystem()
       : super(
             Aspect.empty()..allOf([Acceleration, Orientation, Mass, OnTrack]));
@@ -53,6 +58,7 @@ abstract class _$OnTrackGravitySystem extends EntityProcessingSystem {
     orientationMapper = Mapper<Orientation>(world);
     massMapper = Mapper<Mass>(world);
     onTrackMapper = Mapper<OnTrack>(world);
+    magLockManager = world.getManager<MagLockManager>();
   }
 }
 
@@ -128,9 +134,9 @@ abstract class _$CarOnTrackSystem extends EntityProcessingSystem {
   Mapper<Orientation> orientationMapper;
   Mapper<OnTrack> onTrackMapper;
   TrackSpawningSystem trackSpawningSystem;
+  MagLockManager magLockManager;
   _$CarOnTrackSystem()
-      : super(Aspect.empty()
-          ..allOf([Car, Position, Velocity, Orientation, OnTrack]));
+      : super(Aspect.empty()..allOf([Car, Position, Velocity, Orientation]));
   @override
   void initialize() {
     super.initialize();
@@ -140,6 +146,7 @@ abstract class _$CarOnTrackSystem extends EntityProcessingSystem {
     orientationMapper = Mapper<Orientation>(world);
     onTrackMapper = Mapper<OnTrack>(world);
     trackSpawningSystem = world.getSystem<TrackSpawningSystem>();
+    magLockManager = world.getManager<MagLockManager>();
   }
 }
 
