@@ -1,0 +1,26 @@
+#gamecontainer {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 600px 1fr;
+  grid-template-rows: 1fr 400px 1fr;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  > * {
+    z-index: 3;
+  }
+}
+
+game-menu {
+  grid-column: 2/3;
+  grid-row: 2/3;
+}
+
+canvas {
+  grid-column: 1/4;
+  grid-row: 1/4;
+  z-index: 1;
+  &#hud {
+    z-index: 2;
+  }
+}

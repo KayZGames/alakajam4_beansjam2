@@ -13,8 +13,10 @@ class Game extends GameBase {
   CanvasElement hudCanvas;
   CanvasRenderingContext2D hudCtx;
   DivElement container;
+  GameStateManager gameStateManager;
 
-  Game() : super.noAssets('alakajam4_beansjam2', '#game', webgl: true) {
+  Game(this.gameStateManager)
+      : super.noAssets('alakajam4_beansjam2', '#game', webgl: true) {
     container = querySelector('#gamecontainer');
     hudCanvas = querySelector('#hud');
     hudCtx = hudCanvas.context2D;
@@ -29,7 +31,7 @@ class Game extends GameBase {
       ..addManager(tagManager)
       ..addManager(WebGlViewProjectionMatrixManager(1000))
       ..addManager(MagLockManager())
-      ..addManager(GameStateManager());
+      ..addManager(gameStateManager);
     final camera = addEntity([
       Position(0.0, 0.0),
     ]);
@@ -101,5 +103,11 @@ class Game extends GameBase {
     hudCtx
       ..textBaseline = 'top'
       ..font = '16px Verdana';
+  }
+
+  void destroy() {
+    world
+      ..deleteAllEntities()
+      ..destroy();
   }
 }
